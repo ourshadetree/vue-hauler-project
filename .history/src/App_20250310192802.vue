@@ -77,8 +77,6 @@ font-weight: bold;
 border-left: 2px solid #0073d1;
 }
 
-
-
 h1 {
   border-bottom: 2px solid #2c3e50;
   padding: 30px;
@@ -112,7 +110,7 @@ h1 {
   right: 0;
   width: calc(100% - 120px); /* Subtract navbar width */
   background-color: rgb(255, 26, 26);
-  height: 20px;
+  height: 25px;
   color: white;
   font-weight: bold;
 }

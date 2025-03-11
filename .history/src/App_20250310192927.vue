@@ -75,9 +75,8 @@ nav a.router-link-exact-active {
 color: #0073d1;
 font-weight: bold;
 border-left: 2px solid #0073d1;
+transition: ease-in-out 0.2s;
 }
-
-
 
 h1 {
   border-bottom: 2px solid #2c3e50;
@@ -112,7 +111,7 @@ h1 {
   right: 0;
   width: calc(100% - 120px); /* Subtract navbar width */
   background-color: rgb(255, 26, 26);
-  height: 20px;
+  height: 25px;
   color: white;
   font-weight: bold;
 }

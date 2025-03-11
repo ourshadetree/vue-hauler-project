@@ -24,7 +24,7 @@
 
 <style>
 body {
-  background-color: rgb(252, 248, 248);
+  background-color: whitesmoke;
 }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -47,20 +47,17 @@ nav {
   left: 0;
   top: 0;
   padding: 30px;
-  padding-top: 90px;
   display: flex;
   flex-direction: column;
   width: 120px;
-  height: 100%;
   text-align: left;
   background-color: white;
-  border-right: 1px solid lightgray;
 }
 
 nav a {
-  color: black;
-  padding: 15px;
-  text-decoration: none;
+  font-weight: bold;
+  color: #2c3e50;
+  padding: 10px;
   
   
 }
@@ -72,12 +69,8 @@ nav a:hover {
 }
 
 nav a.router-link-exact-active {
-color: #0073d1;
-font-weight: bold;
-border-left: 2px solid #0073d1;
+  color: #006fe4;
 }
-
-
 
 h1 {
   border-bottom: 2px solid #2c3e50;
@@ -86,8 +79,6 @@ h1 {
 
 #pageContent {
   left: 180px;
-  position: relative;
-  padding: 20px;
 }
 
 #bannerBox {
@@ -97,7 +88,7 @@ h1 {
   right: 0;
   width: calc(100% - 120px); /* Subtract navbar width */
   height: 50px;
-  background: radial-gradient(circle, rgb(71, 71, 181), rgb(23, 23, 75));
+  background: radial-gradient(circle, rgb(58, 58, 193), rgb(15, 15, 97));
 }
 
 #banner {
@@ -111,8 +102,8 @@ h1 {
   left: 180px;
   right: 0;
   width: calc(100% - 120px); /* Subtract navbar width */
-  background-color: rgb(255, 26, 26);
-  height: 20px;
+  background-color: red;
+  height: 25px;
   color: white;
   font-weight: bold;
 }

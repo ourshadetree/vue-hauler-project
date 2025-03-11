@@ -112,7 +112,7 @@ h1 {
   right: 0;
   width: calc(100% - 120px); /* Subtract navbar width */
   background-color: rgb(255, 26, 26);
-  height: 20px;
+  height: 25px;
   color: white;
   font-weight: bold;
 }

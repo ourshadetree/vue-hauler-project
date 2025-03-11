@@ -9,23 +9,15 @@
       </nav>
 
       <div id="header">
-        <div id="bannerBox">
-          <img alt="haulerBanner" id="banner" src="../src/assets/logoBanner.png">
-        </div>
+        <img alt="haulerBanner" id="banner" src="../src/assets/logoBanner.png">
         <div id="alertBar">$0 Membership Fee</div>
-        <div id="pageContent">
-          <router-view/>
-        </div>
-        
+        <router-view/>
       </div>
     
     </div>
 </template>
 
 <style>
-body {
-  background-color: rgb(252, 248, 248);
-}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -39,28 +31,21 @@ body {
   flex-direction: row;
   align-items: center;
   width: 100%;
-  margin: 0;
 }
 
 nav {
-  position: fixed;
-  left: 0;
-  top: 0;
   padding: 30px;
-  padding-top: 90px;
+  margin-top: 8px;
   display: flex;
   flex-direction: column;
   width: 120px;
-  height: 100%;
   text-align: left;
-  background-color: white;
-  border-right: 1px solid lightgray;
 }
 
 nav a {
-  color: black;
-  padding: 15px;
-  text-decoration: none;
+  font-weight: bold;
+  color: #2c3e50;
+  padding: 10px;
   
   
 }
@@ -72,47 +57,24 @@ nav a:hover {
 }
 
 nav a.router-link-exact-active {
-color: #0073d1;
-font-weight: bold;
-border-left: 2px solid #0073d1;
+  color: #006fe4;
 }
-
-
 
 h1 {
   border-bottom: 2px solid #2c3e50;
   padding: 30px;
 }
 
-#pageContent {
-  left: 180px;
-  position: relative;
-  padding: 20px;
-}
-
-#bannerBox {
-  position: fixed;
-  top: 0;
-  left: 180px;
-  right: 0;
-  width: calc(100% - 120px); /* Subtract navbar width */
-  height: 50px;
-  background: radial-gradient(circle, rgb(71, 71, 181), rgb(23, 23, 75));
-}
-
 #banner {
-  width: 30%;
-  height: 80%; 
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+  background: linear-gradient(to bottom, rgb(22, 22, 88), lightblue);
 }
 
 #alertBar {
-  position: fixed;
-  top: 50px;
-  left: 180px;
-  right: 0;
-  width: calc(100% - 120px); /* Subtract navbar width */
-  background-color: rgb(255, 26, 26);
-  height: 20px;
+  background-color: red;
+  height: 25px;
   color: white;
   font-weight: bold;
 }

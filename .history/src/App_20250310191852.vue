@@ -47,19 +47,17 @@ nav {
   left: 0;
   top: 0;
   padding: 30px;
-  padding-top: 90px;
   display: flex;
   flex-direction: column;
   width: 120px;
   height: 100%;
   text-align: left;
   background-color: white;
-  border-right: 1px solid lightgray;
 }
 
 nav a {
-  color: black;
-  padding: 15px;
+  color: #2c3e50;
+  padding: 10px;
   text-decoration: none;
   
   
@@ -72,12 +70,8 @@ nav a:hover {
 }
 
 nav a.router-link-exact-active {
-color: #0073d1;
-font-weight: bold;
-border-left: 2px solid #0073d1;
+  color: #006fe4;
 }
-
-
 
 h1 {
   border-bottom: 2px solid #2c3e50;
@@ -112,7 +106,7 @@ h1 {
   right: 0;
   width: calc(100% - 120px); /* Subtract navbar width */
   background-color: rgb(255, 26, 26);
-  height: 20px;
+  height: 25px;
   color: white;
   font-weight: bold;
 }
