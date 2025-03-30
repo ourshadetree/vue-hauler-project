@@ -94,8 +94,8 @@ export default {
 <style scoped>
 /* Overall Container & Layout */
 #differentContainer {
-  background-color: #0C2442; /* Dark Blue background */
-  color: #FFFFFF;  /* White text for contrast */
+  background-color: #FFFFFF;
+  color: #0C2442;
   font-family: Karla, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
   display: flex;
   flex-direction: column;
@@ -153,17 +153,18 @@ export default {
 }
 
 /* Without Haulers United Graphic */
+/* You can adjust these segment colors as needed; the colors below mix brand primary and secondary hues */
 #withoutGraphic .taxes { width: 16%; background-color: #B11818; }        /* Accent Red */
 #withoutGraphic .refining { width: 16%; background-color: #E5E5E5; }      /* Light Grey */
-#withoutGraphic .crude { width: 49%; background-color: #FFFFFF; }         /* White (to contrast with blue background) */
+#withoutGraphic .crude { width: 49%; background-color: #0C2442; }         /* Dark Blue */
 #withoutGraphic .distribution { width: 18%; background-color: #F5F5F5; }   /* Grey */
 
 /* With Haulers United Graphic */
 #withGraphic .taxes { width: 16%; background-color: #B11818; }           /* Accent Red */
 #withGraphic .refining { width: 16%; background-color: #E5E5E5; }         /* Light Grey */
-#withGraphic .crude { width: 49%; background-color: #FFFFFF; }            /* White */
+#withGraphic .crude { width: 49%; background-color: #0C2442; }            /* Dark Blue */
 #withGraphic .distribution { width: 3%; background-color: #F5F5F5; }        /* Grey */
-#withGraphic .back { width: 15%; background-color: #B11818; }              /* Accent Red for emphasis */
+#withGraphic .back { width: 15%; background-color: #B11818; }              /* Using Red as high-impact accent */
 
 /* Legend Styling */
 .legend {
@@ -191,20 +192,20 @@ export default {
 /* Legend Colors for Without */
 #withoutUs .color-box.taxes { background-color: #B11818; }
 #withoutUs .color-box.refining { background-color: #E5E5E5; }
-#withoutUs .color-box.crude { background-color: #FFFFFF; }
+#withoutUs .color-box.crude { background-color: #0C2442; }
 #withoutUs .color-box.distribution { background-color: #F5F5F5; }
 
 /* Legend Colors for With */
 #withUs .color-box.taxes { background-color: #B11818; }
 #withUs .color-box.refining { background-color: #E5E5E5; }
-#withUs .color-box.crude { background-color: #FFFFFF; }
+#withUs .color-box.crude { background-color: #0C2442; }
 #withUs .color-box.distribution { background-color: #F5F5F5; }
 #withUs .color-box.back { background-color: #B11818; }
 
 /* Disclaimer */
 #disclaimer p {
   font-size: 0.8rem;
-  color: #ddd; /* Slightly lighter white for disclaimer */
+  color: #555;
   margin-top: 20px;
 }
 

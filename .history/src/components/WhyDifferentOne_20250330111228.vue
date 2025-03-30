@@ -1,9 +1,11 @@
 <template>
   <div id="smallGoalContainer">
     <!-- Section Header -->
-    <div id="goalsHeader">
+    <div id="sectionHeader">
       <h2>United We Drive: Our Goals</h2>
     </div>
+    
+    <!-- Main Content Columns -->
     <div id="left">
       <div id="threeGoalBoxes">
         <div class="goalBoxContainer">
@@ -33,9 +35,10 @@
         <div class="goalBar" data-label="Goal 1" data-value="8000 trucks"></div>
         <div class="goalBar" data-label="Goal 2" data-value="10000 trucks"></div>
         <div class="goalBar" data-label="Goal 3" data-value="20000 trucks"></div>
-        <button id="joinButton" @click="openModal('SignUpForm')">Join The Movement</button>
+        <button id="joinButton">Join The Movement</button>
       </div>
     </div>
+    
     <div id="right">
       <div id="achieveList">
         <h3>What We Will Achieve</h3>
@@ -46,39 +49,19 @@
         </ul>
       </div>
     </div>
-    <!-- Modal for authentication forms -->
-    <Modal v-if="activeModal" @close="activeModal = ''">
-      <component :is="activeModal" @close="activeModal = ''" />
-    </Modal>
   </div>
 </template>
   
 <script>
-import Modal from "@/components/Modal.vue";
-import SignUpForm from "@/components/SignUpForm.vue";
-
 export default {
-  name: "SmallGoals",
-  components: {
-    Modal,
-    SignUpForm,
-  },
-  data() {
-    return {
-      activeModal: "", // Will be set to "SignInForm" or "SignUpForm"
-    };
-  },
-  methods: {
-    openModal(formName) {
-      this.activeModal = formName;
-    },
-  },
-};
+  name: "SmallGoals"
+}
 </script>
   
 <style scoped>
-/* Overall container with white background for content */
+/* Overall Container: White background with dark text for informative content */
 #smallGoalContainer {
+  position: relative;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -87,26 +70,27 @@ export default {
   padding: 40px;
   margin-top: 50px;
   border-radius: 10px;
-  background-color: #FFFFFF; /* White background */
+  background-color: #FFFFFF;
   font-family: 'Karla', sans-serif;
-  color: #0C2442; /* Dark Blue text */
-  position: relative;
+  color: #0C2442;
 }
 
-/* Goals Section Header */
-#goalsHeader {
+/* Section Header */
+#sectionHeader {
   position: absolute;
   top: -60px;
   left: 20px;
 }
-#goalsHeader h2 {
+#sectionHeader h2 {
   font-family: 'Sora', sans-serif;
   font-size: 2rem;
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   color: #0C2442;
 }
 
-/* Left and Right Sections */
+/* Left & Right Columns */
 #left, #right {
   flex: 0 0 50%;
   max-width: 50%;
@@ -124,7 +108,7 @@ export default {
 
 /* Each Goal Box Card */
 .goalBoxContainer {
-  background-color: #F5F5F5; /* Light Grey */
+  background-color: #F5F5F5;
   border: 1px solid #E5E5E5;
   border-radius: 10px;
   padding: 15px;
@@ -136,7 +120,6 @@ export default {
 .goalBoxContainer:hover {
   transform: translateY(-5px);
 }
-
 #threeGoalBoxes h3 {
   margin-bottom: 10px;
   font-size: 1.2rem;
@@ -180,6 +163,10 @@ export default {
   position: relative;
   overflow: hidden;
 }
+/* White border between segments for clarity */
+.segment:not(:last-child) {
+  border-right: 2px solid #FFFFFF;
+}
 
 /* Labels on progress bars using pseudo-elements */
 .goalBar::before {
@@ -201,16 +188,14 @@ export default {
   font-size: 0.9rem;
   color: #0C2442;
 }
-
-/* For demonstration purposes, setting a dummy progress fill */
+/* For demonstration: Dummy progress fill (50% fill using Red for filled portion) */
 .goalBar {
-  /* Example: 50% fill using Red and grey */
   background: linear-gradient(to right, #B11818 50%, #E5E5E5 50%);
 }
 
 /* Join Button styling */
 #joinButton {
-  background-color: #B11818; /* Red accent */
+  background-color: #B11818;
   color: #FFFFFF;
   padding: 10px 20px;
   border: none;
@@ -226,9 +211,9 @@ export default {
   transform: scale(1.05);
 }
 
-/* Achieve List styling (Right Side) */
+/* Achieve List styling (Right Column) */
 #achieveList {
-  background-color: #F5F5F5; /* Light Grey */
+  background-color: #F5F5F5;
   border: 1px solid #E5E5E5;
   border-radius: 10px;
   padding: 20px;

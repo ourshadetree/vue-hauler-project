@@ -1,6 +1,6 @@
 <template>
   <div id="smallGoalContainer">
-    <!-- Section Header -->
+    <!-- Goals Section Header -->
     <div id="goalsHeader">
       <h2>United We Drive: Our Goals</h2>
     </div>
@@ -33,7 +33,8 @@
         <div class="goalBar" data-label="Goal 1" data-value="8000 trucks"></div>
         <div class="goalBar" data-label="Goal 2" data-value="10000 trucks"></div>
         <div class="goalBar" data-label="Goal 3" data-value="20000 trucks"></div>
-        <button id="joinButton" @click="openModal('SignUpForm')">Join The Movement</button>
+        <!-- When clicked, this button opens the modal with the SignUpForm -->
+        <button id="joinButton" @click="openModal(SignUpForm)">Join The Movement</button>
       </div>
     </div>
     <div id="right">
@@ -46,7 +47,7 @@
         </ul>
       </div>
     </div>
-    <!-- Modal for authentication forms -->
+    <!-- Modal for the SignUpForm -->
     <Modal v-if="activeModal" @close="activeModal = ''">
       <component :is="activeModal" @close="activeModal = ''" />
     </Modal>
@@ -54,30 +55,30 @@
 </template>
   
 <script>
-import Modal from "@/components/Modal.vue";
-import SignUpForm from "@/components/SignUpForm.vue";
+import Modal from '@/components/Modal.vue';
+import SignUpForm from '@/components/SignUpForm.vue';
 
 export default {
   name: "SmallGoals",
   components: {
     Modal,
-    SignUpForm,
+    SignUpForm
   },
   data() {
     return {
-      activeModal: "", // Will be set to "SignInForm" or "SignUpForm"
-    };
+      activeModal: "" // When set to a component (e.g., SignUpForm), modal appears
+    }
   },
   methods: {
-    openModal(formName) {
-      this.activeModal = formName;
-    },
-  },
-};
+    openModal(component) {
+      this.activeModal = component;
+    }
+  }
+}
 </script>
   
 <style scoped>
-/* Overall container with white background for content */
+/* Overall container with modern gradient background */
 #smallGoalContainer {
   display: flex;
   flex-direction: row;
@@ -87,9 +88,9 @@ export default {
   padding: 40px;
   margin-top: 50px;
   border-radius: 10px;
-  background-color: #FFFFFF; /* White background */
-  font-family: 'Karla', sans-serif;
-  color: #0C2442; /* Dark Blue text */
+  background: linear-gradient(135deg, #073763, #0a4a84);
+  color: #fff;
+  font-family: 'Open Sans', sans-serif;
   position: relative;
 }
 
@@ -103,13 +104,12 @@ export default {
   font-family: 'Sora', sans-serif;
   font-size: 2rem;
   margin: 0;
-  color: #0C2442;
+  color: #fff;
 }
 
 /* Left and Right Sections */
 #left, #right {
-  flex: 0 0 50%;
-  max-width: 50%;
+  flex: 1;
   padding: 20px;
 }
 
@@ -124,8 +124,8 @@ export default {
 
 /* Each Goal Box Card */
 .goalBoxContainer {
-  background-color: #F5F5F5; /* Light Grey */
-  border: 1px solid #E5E5E5;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 10px;
   padding: 15px;
   flex: 1;
@@ -145,7 +145,7 @@ export default {
 
 /* Circular Percentage Display */
 .goalBox {
-  border: 2px solid #0C2442;
+  border: 2px solid #fff;
   border-radius: 50%;
   width: 80px;
   height: 80px;
@@ -153,12 +153,12 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #FFFFFF;
+  background-color: #fff;
 }
 .goalBox h2 {
   margin: 0;
   font-size: 2rem;
-  color: #0C2442;
+  color: #073763;
   font-weight: 700;
   font-family: 'Sora', sans-serif;
 }
@@ -174,7 +174,7 @@ export default {
 .goalBar {
   width: 80%;
   height: 20px;
-  background-color: #E5E5E5; /* Grey for empty bar */
+  background-color: rgba(255, 255, 255, 0.5);
   margin: 15px 0;
   border-radius: 10px;
   position: relative;
@@ -190,7 +190,7 @@ export default {
   transform: translateY(-50%);
   font-weight: bold;
   font-size: 0.9rem;
-  color: #0C2442;
+  color: #fff;
 }
 .goalBar::after {
   content: attr(data-value);
@@ -199,19 +199,18 @@ export default {
   top: 50%;
   transform: translateY(-50%);
   font-size: 0.9rem;
-  color: #0C2442;
+  color: #fff;
 }
 
-/* For demonstration purposes, setting a dummy progress fill */
+/* Dummy progress fill for demonstration (e.g., 50% fill) */
 .goalBar {
-  /* Example: 50% fill using Red and grey */
-  background: linear-gradient(to right, #B11818 50%, #E5E5E5 50%);
+  background: linear-gradient(to right, #B11818 50%, rgba(255, 255, 255, 0.5) 50%);
 }
 
 /* Join Button styling */
 #joinButton {
-  background-color: #B11818; /* Red accent */
-  color: #FFFFFF;
+  background-color: #fff;
+  color: #073763;
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
@@ -222,14 +221,14 @@ export default {
   font-family: 'Sora', sans-serif;
 }
 #joinButton:hover {
-  background-color: #8F1212;
+  background-color: #f0f0f0;
   transform: scale(1.05);
 }
 
 /* Achieve List styling (Right Side) */
 #achieveList {
-  background-color: #F5F5F5; /* Light Grey */
-  border: 1px solid #E5E5E5;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 10px;
   padding: 20px;
 }
@@ -237,7 +236,7 @@ export default {
   margin-bottom: 15px;
   font-size: 1.4rem;
   font-family: 'Sora', sans-serif;
-  color: #0C2442;
+  color: #fff;
 }
 #achieveList ul {
   list-style: none;
@@ -250,7 +249,7 @@ export default {
   padding-left: 30px;
   font-size: 1rem;
   font-family: 'Karla', sans-serif;
-  color: #0C2442;
+  color: #fff;
 }
 #achieveList li::before {
   content: "\2713";

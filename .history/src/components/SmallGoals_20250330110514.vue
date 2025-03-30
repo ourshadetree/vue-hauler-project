@@ -33,7 +33,7 @@
         <div class="goalBar" data-label="Goal 1" data-value="8000 trucks"></div>
         <div class="goalBar" data-label="Goal 2" data-value="10000 trucks"></div>
         <div class="goalBar" data-label="Goal 3" data-value="20000 trucks"></div>
-        <button id="joinButton" @click="openModal('SignUpForm')">Join The Movement</button>
+        <button id="joinButton">Join The Movement</button>
       </div>
     </div>
     <div id="right">

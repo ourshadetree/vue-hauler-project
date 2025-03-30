@@ -40,7 +40,7 @@
       </iframe>
     </div>
     <!-- Join Now Button -->
-    <button id="joinNowButton" @click="openModal('SignUpForm')">Join Now</button>
+    <button id="joinButton" @click="openModal('SignUpForm')">Join Now</button>
     <!-- Modal for authentication forms -->
     <Modal v-if="activeModal" @close="activeModal = ''">
       <component :is="activeModal" @close="activeModal = ''" />

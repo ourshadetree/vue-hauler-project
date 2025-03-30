@@ -23,7 +23,7 @@
         </div>
       </div>
       <!-- Join Now Button -->
-      <button class="join-now-button" @click="openModal('SignUpForm')">Join Now</button>
+      <button class="join-now-button">Join Now</button>
     </div>
 
     <!-- Tab Content -->
@@ -38,36 +38,20 @@
         Route Tool Placeholder
       </div>
     </div>
-      <!-- Modal for authentication forms -->
-      <Modal v-if="activeModal" @close="activeModal = ''">
-        <component :is="activeModal" @close="activeModal = ''" />
-      </Modal>
   </div>
 </template>
 
 <script>
-import Modal from "@/components/Modal.vue";
-import SignUpForm from "@/components/SignUpForm.vue";
-
 export default {
   name: "FuelTools",
-
-  components: {
-    Modal,
-    SignUpForm,
-  },
   data() {
     return {
       activeTab: "averages",
-      activeModal: "",
     };
   },
   methods: {
     setActiveTab(tab) {
       this.activeTab = tab;
-    },
-    openModal(formName) {
-      this.activeModal = formName;
     },
   },
 };

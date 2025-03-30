@@ -29,37 +29,13 @@
     </div>
 
     <!-- Join Button -->
-    <button id="joinNowButton" @click="openModal('SignUpForm')">Join Now</button>
-    <!-- Modal for authentication forms -->
-    <Modal v-if="activeModal" @close="activeModal = ''">
-      <component :is="activeModal" @close="activeModal = ''" />
-    </Modal>
+    <button id="joinNowButton">Join Us</button>
   </div>
 </template>
 
 <script>
-import Modal from "@/components/Modal.vue";
-import SignUpForm from "@/components/SignUpForm.vue";
-
 export default {
-  name: 'Commitment',
-
-  components: {
-    Modal,
-    SignUpForm,
-  },
-
-  data() {
-    return {
-      activeModal: "", // Will be set to "SignInForm" or "SignUpForm"
-    };
-  },
-  methods: {
-    openModal(formName) {
-      this.activeModal = formName;
-    },
-  },
-  
+  name: 'Commitment'
 }
 </script>
 

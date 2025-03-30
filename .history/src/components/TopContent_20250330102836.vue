@@ -47,16 +47,10 @@ function openModal(component) {
 // Function to play video on click
 function playVideo() {
   if (topVideo.value) {
-    if (isVideoPlaying.value) {
-      topVideo.value.pause();
-      isVideoPlaying.value = false;
-    } else {
-      topVideo.value.play();
-      isVideoPlaying.value = true;
-    }
+    topVideo.value.play();
+    isVideoPlaying.value = true;
   }
 }
-
 </script>
 
 <style scoped>

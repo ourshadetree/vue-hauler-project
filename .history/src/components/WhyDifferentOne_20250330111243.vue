@@ -94,32 +94,26 @@ export default {
 <style scoped>
 /* Overall Container & Layout */
 #differentContainer {
-  background-color: #0C2442; /* Dark Blue background */
-  color: #FFFFFF;  /* White text for contrast */
-  font-family: Karla, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 50px 20px;
+  color: #073763;
+  font-family: 'Open Sans', sans-serif;
 }
 
-/* Section Header */
 #sectionHeader h2 {
-  font-family: Sora, sans-serif;
   font-size: 2rem;
   margin-bottom: 20px;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
-/* Title Section */
 #title h1 {
-  font-family: Sora, sans-serif;
   margin-bottom: 10px;
 }
 
-/* Columns Layout */
 #columns {
   display: flex;
   flex-direction: row;
@@ -136,7 +130,7 @@ export default {
 /* Stacked Bar Graphics */
 .stacked-bar {
   display: flex;
-  height: 40px;
+  height: 40px; /* Increased height for better visibility */
   width: 100%;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -147,23 +141,28 @@ export default {
 .segment {
   height: 100%;
 }
-
+/* Add a white border between segments for clarity */
 .segment:not(:last-child) {
   border-right: 2px solid #fff;
 }
 
-/* Without Haulers United Graphic */
-#withoutGraphic .taxes { width: 16%; background-color: #B11818; }        /* Accent Red */
-#withoutGraphic .refining { width: 16%; background-color: #E5E5E5; }      /* Light Grey */
-#withoutGraphic .crude { width: 49%; background-color: #FFFFFF; }         /* White (to contrast with blue background) */
-#withoutGraphic .distribution { width: 18%; background-color: #F5F5F5; }   /* Grey */
+/* Without Haulers United: Segment widths and colors */
+#withoutGraphic .taxes { width: 16%; }
+#withoutGraphic .refining { width: 16%; }
+#withoutGraphic .crude { width: 49%; }
+#withoutGraphic .distribution { width: 18%; background-color: #d3d3d3; }  /* Light gray */
 
-/* With Haulers United Graphic */
-#withGraphic .taxes { width: 16%; background-color: #B11818; }           /* Accent Red */
-#withGraphic .refining { width: 16%; background-color: #E5E5E5; }         /* Light Grey */
-#withGraphic .crude { width: 49%; background-color: #FFFFFF; }            /* White */
-#withGraphic .distribution { width: 3%; background-color: #F5F5F5; }        /* Grey */
-#withGraphic .back { width: 15%; background-color: #B11818; }              /* Accent Red for emphasis */
+/* With Haulers United: Segment widths and colors */
+#withGraphic .taxes { width: 16%; }
+#withGraphic .refining { width: 16%; }
+#withGraphic .crude { width: 49%; }
+#withGraphic .distribution { width: 3%; background-color: #ffcccb; }   /* Light red */
+#withGraphic .back { width: 15%; background-color: #90ee90; }          /* Bright green */
+
+/* Default colors for other segments */
+.taxes { background-color: #f08080; }        /* Light Coral */
+.refining { background-color: #f0e68c; }      /* Khaki */
+.crude { background-color: #87cefa; }         /* Light Sky Blue */
 
 /* Legend Styling */
 .legend {
@@ -189,28 +188,27 @@ export default {
 }
 
 /* Legend Colors for Without */
-#withoutUs .color-box.taxes { background-color: #B11818; }
-#withoutUs .color-box.refining { background-color: #E5E5E5; }
-#withoutUs .color-box.crude { background-color: #FFFFFF; }
-#withoutUs .color-box.distribution { background-color: #F5F5F5; }
+#withoutUs .color-box.taxes { background-color: #f08080; }
+#withoutUs .color-box.refining { background-color: #f0e68c; }
+#withoutUs .color-box.crude { background-color: #87cefa; }
+#withoutUs .color-box.distribution { background-color: #d3d3d3; }
 
 /* Legend Colors for With */
-#withUs .color-box.taxes { background-color: #B11818; }
-#withUs .color-box.refining { background-color: #E5E5E5; }
-#withUs .color-box.crude { background-color: #FFFFFF; }
-#withUs .color-box.distribution { background-color: #F5F5F5; }
-#withUs .color-box.back { background-color: #B11818; }
+#withUs .color-box.taxes { background-color: #f08080; }
+#withUs .color-box.refining { background-color: #f0e68c; }
+#withUs .color-box.crude { background-color: #87cefa; }
+#withUs .color-box.distribution { background-color: #ffcccb; }
+#withUs .color-box.back { background-color: #90ee90; }
 
 /* Disclaimer */
 #disclaimer p {
   font-size: 0.8rem;
-  color: #ddd; /* Slightly lighter white for disclaimer */
+  color: #555;
   margin-top: 20px;
 }
 
 /* Right Column */
 #right h2 {
-  font-family: Sora, sans-serif;
   margin-bottom: 20px;
 }
 </style>

@@ -3,6 +3,7 @@
     <!-- Fixed Nav on the left -->
     <nav>
       <router-link to="/">Home</router-link>
+      <router-link to="/about">About</router-link>
       <router-link to="/members">Members Services</router-link>
       <router-link to="/fuelTools">Fuel Tools</router-link>
       <router-link to="/loadBoard">Load Board</router-link>

@@ -23,7 +23,7 @@
         </div>
       </div>
       <!-- Join Now Button -->
-      <button class="join-now-button" @click="openModal('SignUpForm')">Join Now</button>
+      <button id="joinNowButton" @click="openModal('SignUpForm')">Join Now</button>
     </div>
 
     <!-- Tab Content -->
@@ -51,23 +51,14 @@ import SignUpForm from "@/components/SignUpForm.vue";
 
 export default {
   name: "FuelTools",
-
-  components: {
-    Modal,
-    SignUpForm,
-  },
   data() {
     return {
       activeTab: "averages",
-      activeModal: "",
     };
   },
   methods: {
     setActiveTab(tab) {
       this.activeTab = tab;
-    },
-    openModal(formName) {
-      this.activeModal = formName;
     },
   },
 };

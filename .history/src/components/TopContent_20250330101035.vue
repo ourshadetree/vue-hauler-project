@@ -6,8 +6,7 @@
         Unlock collective strength with America's fastest-growing trucker organization.
       </h3>
       <h3 id="italic">Every member makes us stronger.</h3>
-      <!-- When clicked, this button calls openModal() with the SignUpForm component -->
-      <button @click="openModal(SignUpForm)">Join Now</button>
+      <button @click="openModal('SignUpForm')">Join Now</button>
     </div>
     <div id="topMedia">
       <div class="video-wrapper" @click="playVideo">
@@ -20,7 +19,6 @@
         </div>
       </div>
     </div>
-    <!-- Modal: Only shows when activeModal is set -->
     <Modal v-if="activeModal" @close="activeModal = ''">
       <component :is="activeModal" @close="activeModal = ''" />
     </Modal>
@@ -32,65 +30,43 @@ import { ref } from 'vue';
 import Modal from "@/components/Modal.vue";
 import SignUpForm from "@/components/SignUpForm.vue";
 
-// Video-related state
 const isVideoPlaying = ref(false);
 const topVideo = ref(null);
 
-// Modal state: When activeModal is set to a component, the modal is shown
-const activeModal = ref("");
-
-// Function to open the modal with a specific component (e.g., SignUpForm)
-function openModal(component) {
-  activeModal.value = component;
-}
-
-// Function to play video on click
 function playVideo() {
   if (topVideo.value) {
-    if (isVideoPlaying.value) {
-      topVideo.value.pause();
-      isVideoPlaying.value = false;
-    } else {
-      topVideo.value.play();
-      isVideoPlaying.value = true;
-    }
+    topVideo.value.play();
+    isVideoPlaying.value = true;
   }
 }
-
 </script>
 
 <style scoped>
-/* Top container: Hero banner with Dark Blue background */
 #topContainer {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #0C2442; /* Dark Blue */
+  background-color: #073763;
   height: 400px;
   width: 100%;
   padding: 20px;
 }
 
-/* Left content area */
 #topContent {
   padding: 20px;
-  color: #FFFFFF;
+  color: #ffffff;
   max-width: 50%;
 }
 
-/* Heading using Sora */
 h1 {
-  font-family: 'Sora', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
   font-weight: 900;
-  color: #FFFFFF;
-  font-size: 2.5rem;
+  color: #ffffff;
+  font-size: 2rem;
   margin-bottom: 10px;
 }
 
-/* Subheadings using Karla */
 h3 {
-  font-family: 'Karla', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-  color: #FFFFFF;
+  color: #d1d1d1;
   font-size: 1.2rem;
   margin-bottom: 10px;
 }
@@ -100,24 +76,21 @@ h3 {
   font-weight: 500;
 }
 
-/* Join Now Button using Red accent */
-button {
+#joinButton {
   padding: 10px 20px;
-  background-color: #B11818; /* Red */
+  background-color: #ff6600; /* Modern accent color */
   border: none;
   border-radius: 5px;
-  color: #FFFFFF;
+  color: #ffffff;
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s;
-  font-family: 'Sora', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 }
 
-button:hover {
-  background-color: #9A1010; /* Slightly darker red */
+#joinButton:hover {
+  background-color: #e65c00;
 }
 
-/* Right content area for media */
 #topMedia {
   padding: 20px;
   max-width: 50%;
@@ -151,6 +124,6 @@ video {
 
 .play-icon {
   font-size: 3rem;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 </style>

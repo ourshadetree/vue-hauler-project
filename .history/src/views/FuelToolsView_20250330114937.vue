@@ -23,7 +23,7 @@
         </div>
       </div>
       <!-- Join Now Button -->
-      <button class="join-now-button" @click="openModal('SignUpForm')">Join Now</button>
+      <button id="join-now-button" @click="openModal('SignUpForm')">Join Now</button>
     </div>
 
     <!-- Tab Content -->
