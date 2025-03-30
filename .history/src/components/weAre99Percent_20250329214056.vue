@@ -74,9 +74,6 @@ const progressPercentage = computed(() => {
   max-width: 50%;
   display: flex;
   align-items: stretch;
-  justify-content: stretch;
-  padding-left: 10px;
-  margin: 0; 
 }
 
 /* Inner content fills its parent */

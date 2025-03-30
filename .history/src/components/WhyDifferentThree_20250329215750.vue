@@ -13,7 +13,7 @@
             <img src="../assets/chart.png" alt="Chart">
           </div>
         </div>
-        <!-- Right Column: Content Cards -->
+        <!-- Right Column: Content -->
         <div id="right">
           <div class="rightContent">
             <h2>Current Focus</h2>
@@ -51,10 +51,10 @@
   </script>
   
   <style scoped>
-  /* Overall Container: Background is now transparent to show the main page white */
+  /* Overall Container */
   #whyDifferentContainer {
-    background-color: transparent;
-    color: #073763;  /* Use dark text for contrast on a blank background */
+    background: linear-gradient(135deg, #073763, #0a4a84);
+    color: white;
     padding: 60px 20px;
     font-family: 'Open Sans', sans-serif;
     display: flex;
@@ -70,14 +70,12 @@
   #title h1 {
     font-size: 2.8rem;
     margin-bottom: 10px;
-    color: #073763;
   }
   #title p {
     font-size: 1.2rem;
     max-width: 800px;
     margin: 0 auto;
     line-height: 1.6;
-    color: #333;
   }
   
   /* Columns Layout */
@@ -98,7 +96,7 @@
     align-items: center;
   }
   #leftGraphic {
-    background-color: #fff;
+    background-color: white;
     border-radius: 8px;
     padding: 10px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
@@ -117,7 +115,7 @@
     gap: 20px;
   }
   .rightContent {
-    background-color: #fff;
+    background-color: white;
     color: #073763;
     padding: 20px;
     border-radius: 8px;

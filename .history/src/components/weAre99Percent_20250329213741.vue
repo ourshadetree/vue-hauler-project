@@ -62,21 +62,13 @@ const progressPercentage = computed(() => {
   background-color: #f8f8f8; /* Light background for contrast */
 }
 
-/* Left section takes 50% */
-#left {
-  flex: 0 0 50%;
-  max-width: 50%;
-}
-
-/* Right section updated to take 50% */
+/* Left and right sections take equal width */
+#left,
 #right {
   flex: 0 0 50%;
   max-width: 50%;
   display: flex;
   align-items: stretch;
-  justify-content: stretch;
-  padding-left: 10px;
-  margin: 0; 
 }
 
 /* Inner content fills its parent */

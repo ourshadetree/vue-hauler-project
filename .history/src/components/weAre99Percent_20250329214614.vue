@@ -75,7 +75,7 @@ const progressPercentage = computed(() => {
   display: flex;
   align-items: stretch;
   justify-content: stretch;
-  padding-left: 10px;
+  padding-left: 5px;
   margin: 0; 
 }
 

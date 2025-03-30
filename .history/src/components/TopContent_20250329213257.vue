@@ -10,7 +10,7 @@
     </div>
     <div id="topMedia">
       <div class="video-wrapper" @click="playVideo">
-        <video ref="topVideo" playsinline>
+        <video ref="topVideo" poster="../assets/video-poster.jpg" playsinline>
           <source src="../assets/topVideo.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
@@ -81,7 +81,6 @@ h3 {
   cursor: pointer;
   transition: background-color 0.3s;
 }
-
 #joinButton:hover {
   background-color: #e65c00;
 }

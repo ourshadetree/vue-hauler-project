@@ -9,9 +9,9 @@
     <div id="columns">
       <!-- Left Column -->
       <div id="left">
-        <!-- Left Media Placeholder -->
+        <!-- Left Media (Placeholder image; update src as needed) -->
         <div id="leftMedia">
-          <div class="media-placeholder">Media Placeholder</div>
+          <img src="../assets/placeholderMedia.png" alt="Media">
         </div>
         <!-- Fuel Card Info -->
         <div id="leftFuelCard">
@@ -27,7 +27,7 @@
         <div id="leftBetterOption">
           <h1>There is a better option...</h1>
           <div id="betterImages">
-            <div class="option-placeholder">Option Image Placeholder</div>
+            <img src="../assets/optionImage.png" alt="Better Option">
           </div>
         </div>
       </div>
@@ -52,7 +52,7 @@
     <!-- Fuel Card Ads Section -->
     <div id="fuelCardAds">
       <div id="fuelCardImg">
-        <div class="ad-placeholder">Fuel Card Ad Placeholder</div>
+        <img src="../assets/fuelCardAd.png" alt="Fuel Card Ad">
       </div>
       <div id="fuelCardText">
         <ul>
@@ -119,22 +119,17 @@ export default {
   gap: 20px;
 }
 
-/* Left Media Placeholder */
+/* Left Media */
 #leftMedia {
   display: flex;
   justify-content: center;
   align-items: center;
 }
-.media-placeholder {
-  width: 100%;
-  height: 200px;
-  background-color: #ccc;
-  color: #073763;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+#leftMedia img {
+  max-width: 100%;
+  height: auto;
   border-radius: 8px;
-  font-size: 1.2rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 /* Fuel Card Info */
@@ -168,16 +163,11 @@ export default {
   display: flex;
   justify-content: center;
 }
-.option-placeholder {
-  width: 80%;
-  height: 150px;
-  background-color: #ccc;
-  color: #073763;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+#betterImages img {
+  max-width: 80%;
+  height: auto;
   border-radius: 8px;
-  font-size: 1.2rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
 /* Right Column */
@@ -252,16 +242,11 @@ export default {
   justify-content: center;
   align-items: center;
 }
-.ad-placeholder {
-  width: 100%;
-  height: 200px;
-  background-color: #ccc;
-  color: #073763;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+#fuelCardImg img {
+  max-width: 100%;
+  height: auto;
   border-radius: 8px;
-  font-size: 1.2rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 #fuelCardText {
   flex: 1;

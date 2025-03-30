@@ -81,7 +81,6 @@
   #simpleMap {
     width: 100%;
     height: 400px;
-    border-radius: 10px; /* Rounded corners for the map */
   }
   </style>
   

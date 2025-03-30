@@ -1,10 +1,5 @@
 <template>
   <div id="differentContainer">
-    <!-- New Section Header -->
-    <div id="sectionHeader">
-      <h2>Why It Works</h2>
-    </div>
-    
     <div id="title">
       <h1>1. Collective Bargaining Approach</h1>
       <p>
@@ -14,9 +9,7 @@
     <div id="columns">
       <div id="left">
         <h3>Diesel Cost Breakdown</h3>
-        <p>
-          By coming together and negotiating volume discounts with distributors, we can lower our fuel costs as much as possible
-        </p>
+        <p>By coming together and negotiating volume discounts with distributors, we can lower our fuel costs as much as possible</p>
         <!-- Without Haulers United Graphic -->
         <div id="withoutUs">
           <h4>Without Haulers United</h4>
@@ -27,18 +20,10 @@
             <div class="segment distribution"></div>
           </div>
           <div class="legend">
-            <div class="legend-item">
-              <span class="color-box taxes"></span> Taxes (16%)
-            </div>
-            <div class="legend-item">
-              <span class="color-box refining"></span> Refining (16%)
-            </div>
-            <div class="legend-item">
-              <span class="color-box crude"></span> Crude Oil (49%)
-            </div>
-            <div class="legend-item">
-              <span class="color-box distribution"></span> Distribution &amp; Marketing (18%)
-            </div>
+            <div class="legend-item"><span class="color-box taxes"></span> Taxes (16%)</div>
+            <div class="legend-item"><span class="color-box refining"></span> Refining (16%)</div>
+            <div class="legend-item"><span class="color-box crude"></span> Crude Oil (49%)</div>
+            <div class="legend-item"><span class="color-box distribution"></span> Distribution &amp; Marketing (18%)</div>
           </div>
         </div>
         <!-- With Haulers United Graphic -->
@@ -52,27 +37,15 @@
             <div class="segment back"></div>
           </div>
           <div class="legend">
-            <div class="legend-item">
-              <span class="color-box taxes"></span> Taxes (16%)
-            </div>
-            <div class="legend-item">
-              <span class="color-box refining"></span> Refining (16%)
-            </div>
-            <div class="legend-item">
-              <span class="color-box crude"></span> Crude Oil (49%)
-            </div>
-            <div class="legend-item">
-              <span class="color-box distribution"></span> Distribution &amp; Marketing (3%)
-            </div>
-            <div class="legend-item">
-              <span class="color-box back"></span> Back in Your Pocket (15%)
-            </div>
+            <div class="legend-item"><span class="color-box taxes"></span> Taxes (16%)</div>
+            <div class="legend-item"><span class="color-box refining"></span> Refining (16%)</div>
+            <div class="legend-item"><span class="color-box crude"></span> Crude Oil (49%)</div>
+            <div class="legend-item"><span class="color-box distribution"></span> Distribution &amp; Marketing (3%)</div>
+            <div class="legend-item"><span class="color-box back"></span> Back in Your Pocket (15%)</div>
           </div>
         </div>
         <div id="disclaimer">
-          <p>
-            Disclaimer: The above graphics are for illustrative purposes only and do not represent actual savings. Actual savings will vary based on market conditions and other factors.
-          </p>
+          <p>Disclaimer: The above graphics are for illustrative purposes only and do not represent actual savings. Actual savings will vary based on market conditions and other factors.</p>
         </div>
       </div>
       <div id="right">
@@ -92,7 +65,7 @@ export default {
 </script>
 
 <style scoped>
-/* Overall Container & Layout */
+/* Container & Layout */
 #differentContainer {
   display: flex;
   flex-direction: column;
@@ -101,13 +74,6 @@ export default {
   padding: 50px 20px;
   color: #073763;
   font-family: 'Open Sans', sans-serif;
-}
-
-#sectionHeader h2 {
-  font-size: 2rem;
-  margin-bottom: 20px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
 #title h1 {
@@ -130,7 +96,7 @@ export default {
 /* Stacked Bar Graphics */
 .stacked-bar {
   display: flex;
-  height: 40px; /* Increased height for better visibility */
+  height: 30px;
   width: 100%;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -138,28 +104,25 @@ export default {
   margin-bottom: 10px;
 }
 
-.segment {
-  height: 100%;
-}
-/* Add a white border between segments for clarity */
-.segment:not(:last-child) {
-  border-right: 2px solid #fff;
-}
-
-/* Without Haulers United: Segment widths and colors */
+/* Without Haulers United: Set segment widths and colors */
 #withoutGraphic .taxes { width: 16%; }
 #withoutGraphic .refining { width: 16%; }
 #withoutGraphic .crude { width: 49%; }
-#withoutGraphic .distribution { width: 18%; background-color: #d3d3d3; }  /* Light gray */
+#withoutGraphic .distribution { width: 18%; background-color: #d3d3d3; }  /* light gray */
 
-/* With Haulers United: Segment widths and colors */
+/* With Haulers United: Set segment widths and colors */
 #withGraphic .taxes { width: 16%; }
 #withGraphic .refining { width: 16%; }
 #withGraphic .crude { width: 49%; }
-#withGraphic .distribution { width: 3%; background-color: #ffcccb; }   /* Light red */
-#withGraphic .back { width: 15%; background-color: #90ee90; }          /* Bright green */
+#withGraphic .distribution { width: 3%; background-color: #ffcccb; }   /* light red */
+#withGraphic .back { width: 15%; background-color: #90ee90; }          /* bright green */
 
-/* Default colors for other segments */
+/* Common styling for segments (fallback) */
+.segment {
+  height: 100%;
+}
+
+/* Colors for the segments in Without (for taxes, refining, crude remain the same) */
 .taxes { background-color: #f08080; }        /* Light Coral */
 .refining { background-color: #f0e68c; }      /* Khaki */
 .crude { background-color: #87cefa; }         /* Light Sky Blue */
@@ -187,13 +150,13 @@ export default {
   border: 1px solid #ccc;
 }
 
-/* Legend Colors for Without */
+/* Legend colors for Without */
 #withoutUs .color-box.taxes { background-color: #f08080; }
 #withoutUs .color-box.refining { background-color: #f0e68c; }
 #withoutUs .color-box.crude { background-color: #87cefa; }
 #withoutUs .color-box.distribution { background-color: #d3d3d3; }
 
-/* Legend Colors for With */
+/* Legend colors for With */
 #withUs .color-box.taxes { background-color: #f08080; }
 #withUs .color-box.refining { background-color: #f0e68c; }
 #withUs .color-box.crude { background-color: #87cefa; }
