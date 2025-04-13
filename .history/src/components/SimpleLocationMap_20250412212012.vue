@@ -19,12 +19,6 @@
       <div class="layer-button" @click="toggleTools">
         Map Tools
       </div>
-      <!-- New toggle button for All Stations -->
-      <div class="layer-button" 
-           :class="{ active: allStationsVisible }"
-           @click="toggleAllStations">
-        {{ allStationsVisible ? 'Hide All Stations' : 'Show All Stations' }}
-      </div>
     </div>
 
     <!-- Floating Tools Bar (Collapsible) -->
@@ -66,14 +60,14 @@
           <button @click="clearRouteInputs">Clear</button>
         </div>
 
-        <!-- Refresh Map Button -->
+        <!-- NEW: Refresh Map Button -->
         <div class="control-group">
           <button @click="refreshMap">Refresh Map</button>
         </div>
       </div>
       <button class="collapse-button" @click="toggleTools">Collapse</button>
     </div>
-    
+    <button v-else class="expand-button" @click="toggleTools">Tools</button>
 
     <!-- Map container -->
     <div id="stationMapFool" class="map"></div>
@@ -100,7 +94,6 @@ const defaultZoom = 5
 // Toolbox / UI
 const toolsExpanded = ref(false)
 const currentMapType = ref('roadmap')
-const allStationsVisible = ref(false) // NEW: controls display of all stations
 
 // Address fields
 const lookupAddress = ref('')
@@ -114,7 +107,10 @@ const toInput = ref(null)
 let directionsService = null
 let directionsRenderer = null
 
+let stationsSubset = []
 const emit = defineEmits(['filtered'])
+
+
 
 //-------------------------------------------------
 //  MOUNTED: Initialize the map
@@ -154,7 +150,9 @@ async function initMap() {
   directionsRenderer = new google.maps.DirectionsRenderer({ suppressMarkers: false })
   directionsRenderer.setMap(map.value)
 
-  // Initially, no stations are fetched
+  // Initially, we don't fetch or display any stations
+  // If you do want to show all by default, see the "Show All" approach from earlier.
+
   await nextTick()
   if (toolsExpanded.value && lookupInput.value) {
     initAutocomplete(lookupInput.value, lookupAddress)
@@ -175,6 +173,7 @@ async function initMap() {
   }
 }
 
+
 //--------------------------------------------
 // SERVER-SIDE QUERY APPROACH (Bounding Box)
 //--------------------------------------------
@@ -189,19 +188,6 @@ async function fetchStationsByBoundingBox(minLat, maxLat, minLng, maxLng) {
 
   if (error) {
     console.error('[fetchStationsByBoundingBox] Error:', error)
-    return []
-  }
-  return data
-}
-
-// NEW: Fetch all stations regardless of bounding box
-async function fetchAllStations() {
-  const { data, error } = await supabase
-    .from('a_to_b_stations')
-    .select('id, lat, lng, brand_name, station_name, address, city, state')
-    
-  if (error) {
-    console.error('[fetchAllStations] Error:', error)
     return []
   }
   return data
@@ -281,6 +267,7 @@ async function handleLookup() {
   })
 }
 
+
 //--------------------------------------------
 // ROUTE LOOKUP
 //--------------------------------------------
@@ -327,15 +314,16 @@ async function calculateRoute() {
 
       const stationsSubset = await fetchStationsByBoundingBox(minLat, maxLat, minLng, maxLng)
       fetchAndCreateMarkers(stationsSubset)
-      
-      emit('filtered', {
+          emit('filtered', {
         stations: stationsSubset,
-        reference: origin
+        reference: location
       })
     } else {
       console.error('Error calculating route:', status)
       alert(`Unable to calculate route: ${status}`)
     }
+
+    
   })
 }
 
@@ -356,28 +344,29 @@ function clearRouteInputs() {
  *   - Resets map to default center & zoom
  */
 function refreshMap() {
-  console.log('Refreshing map...');
-  
-  // Clear inputs and directions:
-  fromAddress.value = '';
-  toAddress.value = '';
-  lookupAddress.value = '';
-  clearDirections();
+    console.log('Refreshing map...');
+    // 1) Clear route inputs and directions
+    this.fromAddress = '';
+    this.toAddress = '';
+    this.lookupAddress = '';
+    this.clearDirections();
 
-  // Clear markers:
-  markers.value.forEach(m => m.setMap(null))
-  markers.value = [];
+    // 2) Remove all markers
+    this.markers.forEach((m, idx) => {
+      console.log('Removing marker:', idx, m.getTitle());
+      m.setMap(null);
+    });
+    this.markers = [];
 
-  // Reset toggle state if needed:
-  allStationsVisible.value = false;
+    // 3) Reset the map to its default center/zoom.
+    // Option A: destroy and reinitialize the map, e.g.
+    this.map = null;
+    this.initMap();
 
-  // Destroy and reinitialize map:
-  map.value = null;
-  initMap();
-  
-  // Clear the nearby station list data:
-  emit('clearFiltered');
-}
+    // 4) Clear the nearby stations data so that the overlay unmounts.
+    this.filteredStations = []; // This will cause v-if (filteredStations.length > 0) to be false.
+    this.currentReference = null;
+  }
 
 function clearDirections() {
   if (directionsRenderer) directionsRenderer.set('directions', null)
@@ -445,23 +434,6 @@ async function geocodeAddress(address) {
   } catch (err) {
     console.error(err)
     return null
-  }
-}
-
-// -------------------------------------
-// NEW: Toggle All Stations Functionality
-// -------------------------------------
-async function toggleAllStations() {
-  // Toggle the state
-  allStationsVisible.value = !allStationsVisible.value
-  if (allStationsVisible.value) {
-    // When toggled on, fetch all stations and create markers.
-    const allStations = await fetchAllStations()
-    fetchAndCreateMarkers(allStations)
-  } else {
-    // When toggled off, remove the markers.
-    markers.value.forEach(m => m.setMap(null))
-    markers.value = []
   }
 }
 </script>

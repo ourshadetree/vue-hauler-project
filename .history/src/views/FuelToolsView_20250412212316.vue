@@ -23,8 +23,7 @@
     </div>
 
       <div v-if="activeTab === 'location'" class="tab-placeholder">
-        <SimpleLocationMap @clearFiltered="filteredStations = []" @filtered="updateFilteredStations" />
-
+        <SimpleLocationMap @filtered="updateFilteredStations" />
         <NearbyStationList
          v-if="filteredStations && filteredStations.length > 0"
          :filteredStations="filteredStations"
@@ -51,7 +50,6 @@ import SignUpForm from "@/components/SignUpForm.vue";
 import SimpleLocationMap from "@/components/SimpleLocationMap.vue";
 import GeocodeUpdater from "@/components/GeocodeUpdater.vue"; // New geocode component
 import NearbyStationList from "@/components/NearbyStationList.vue";
-import { ref } from 'vue';
 
 export default {
   name: "FuelTools",

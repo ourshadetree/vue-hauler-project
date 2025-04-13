@@ -73,7 +73,7 @@
       </div>
       <button class="collapse-button" @click="toggleTools">Collapse</button>
     </div>
-    
+    <button v-else class="expand-button" @click="toggleTools">Tools</button>
 
     <!-- Map container -->
     <div id="stationMapFool" class="map"></div>

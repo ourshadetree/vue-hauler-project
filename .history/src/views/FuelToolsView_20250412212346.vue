@@ -23,8 +23,7 @@
     </div>
 
       <div v-if="activeTab === 'location'" class="tab-placeholder">
-        <SimpleLocationMap @clearFiltered="filteredStations = []" @filtered="updateFilteredStations" />
-
+        <SimpleLocationMap @filtered="updateFilteredStations" />
         <NearbyStationList
          v-if="filteredStations && filteredStations.length > 0"
          :filteredStations="filteredStations"

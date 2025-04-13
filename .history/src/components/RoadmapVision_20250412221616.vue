@@ -2,7 +2,7 @@
   <div id="roadmapContainer">
     <!-- Header Section with Image -->
     <div id="headerImage">
-      <img src="@/assets/happyThumbs.png" alt="Happy Thumbs" />
+      <img :src="happyThumbs" alt="Happy Thumbs" />
     </div>
 
     <!-- Title Section -->

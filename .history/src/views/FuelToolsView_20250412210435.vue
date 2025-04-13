@@ -23,8 +23,7 @@
     </div>
 
       <div v-if="activeTab === 'location'" class="tab-placeholder">
-        <SimpleLocationMap @clearFiltered="filteredStations = []" @filtered="updateFilteredStations" />
-
+        <SimpleLocationMap @filtered="updateFilteredStations" />
         <NearbyStationList
          v-if="filteredStations && filteredStations.length > 0"
          :filteredStations="filteredStations"
@@ -51,7 +50,6 @@ import SignUpForm from "@/components/SignUpForm.vue";
 import SimpleLocationMap from "@/components/SimpleLocationMap.vue";
 import GeocodeUpdater from "@/components/GeocodeUpdater.vue"; // New geocode component
 import NearbyStationList from "@/components/NearbyStationList.vue";
-import { ref } from 'vue';
 
 export default {
   name: "FuelTools",
@@ -64,27 +62,20 @@ export default {
   },
   data() {
     return {
-      activeTab: "location",
-      activeModal: ref(''),
-      filteredStations: ref([]),
-      currentReference: ref(null),
+      activeTab: "averages",
+      activeModal: "",
+      filteredStations: [],
+      currentReference: null,
     };
   },
-    methods: {
+  methods: {
     setActiveTab(tab) {
       this.activeTab = tab;
     },
     openModal(formName) {
       this.activeModal = formName;
     },
-    updateFilteredStations(payload) {
-      // Expect payload to be an object: { stations: [...], reference: { lat, lng } }
-      console.log("Received filtered payload:", payload); // Debug log
-      this.filteredStations = payload.stations || [];
-      this.currentReference = payload.reference || null;
-    },
-  }
-
+  },
 };
 </script>
 

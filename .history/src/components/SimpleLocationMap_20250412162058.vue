@@ -19,18 +19,12 @@
       <div class="layer-button" @click="toggleTools">
         Map Tools
       </div>
-      <!-- New toggle button for All Stations -->
-      <div class="layer-button" 
-           :class="{ active: allStationsVisible }"
-           @click="toggleAllStations">
-        {{ allStationsVisible ? 'Hide All Stations' : 'Show All Stations' }}
-      </div>
     </div>
 
     <!-- Floating Tools Bar (Collapsible) -->
     <div v-if="toolsExpanded" class="map-overlay">
       <div class="controls-wrapper">
-        <!-- Single address -->
+        <!-- Single address lookup -->
         <div class="control-group">
           <input
             type="text"
@@ -65,18 +59,13 @@
           <button @click="calculateRoute">Route</button>
           <button @click="clearRouteInputs">Clear</button>
         </div>
-
-        <!-- Refresh Map Button -->
-        <div class="control-group">
-          <button @click="refreshMap">Refresh Map</button>
-        </div>
       </div>
       <button class="collapse-button" @click="toggleTools">Collapse</button>
     </div>
-    
+    <button v-else class="expand-button" @click="toggleTools">Tools</button>
 
     <!-- Map container -->
-    <div id="stationMapFool" class="map"></div>
+    <div id="stationMap" class="map"></div>
   </div>
 </template>
 
@@ -84,6 +73,7 @@
 import { ref, onMounted, nextTick } from 'vue'
 import { supabase } from '@/../supabaseClient'
 
+// Marker icons
 import taIcon from '@/assets/ta.png'
 import speedwayIcon from '@/assets/speedway.png'
 import sheetzIcon from '@/assets/sheetz.png'
@@ -100,7 +90,6 @@ const defaultZoom = 5
 // Toolbox / UI
 const toolsExpanded = ref(false)
 const currentMapType = ref('roadmap')
-const allStationsVisible = ref(false) // NEW: controls display of all stations
 
 // Address fields
 const lookupAddress = ref('')
@@ -113,8 +102,6 @@ const toInput = ref(null)
 // Directions
 let directionsService = null
 let directionsRenderer = null
-
-const emit = defineEmits(['filtered'])
 
 //-------------------------------------------------
 //  MOUNTED: Initialize the map
@@ -134,9 +121,9 @@ onMounted(() => {
 
 // Initialize the map
 async function initMap() {
-  const mapDiv = document.getElementById('stationMapFool')
+  const mapDiv = document.getElementById('stationMap')
   if (!mapDiv) {
-    console.error('Error: #stationMapFool not found.')
+    console.error('Error: #stationMap not found.')
     return
   }
 
@@ -154,7 +141,11 @@ async function initMap() {
   directionsRenderer = new google.maps.DirectionsRenderer({ suppressMarkers: false })
   directionsRenderer.setMap(map.value)
 
-  // Initially, no stations are fetched
+  // Optionally, show all stations by default
+  // For an example, let's skip that and show no stations on load.
+  // If you DO want them, uncomment the next line:
+  // await fetchAndCreateMarkersAllStations();
+
   await nextTick()
   if (toolsExpanded.value && lookupInput.value) {
     initAutocomplete(lookupInput.value, lookupAddress)
@@ -163,21 +154,31 @@ async function initMap() {
     const fromAuto = new google.maps.places.Autocomplete(fromInput.value, { types: ['geocode'] })
     fromAuto.addListener('place_changed', () => {
       const place = fromAuto.getPlace()
-      if (place && place.formatted_address) fromAddress.value = place.formatted_address
+      if (place && place.formatted_address) {
+        fromAddress.value = place.formatted_address
+      }
     })
   }
   if (toolsExpanded.value && toInput.value) {
     const toAuto = new google.maps.places.Autocomplete(toInput.value, { types: ['geocode'] })
     toAuto.addListener('place_changed', () => {
       const place = toAuto.getPlace()
-      if (place && place.formatted_address) toAddress.value = place.formatted_address
+      if (place && place.formatted_address) {
+        toAddress.value = place.formatted_address
+      }
     })
   }
 }
 
 //--------------------------------------------
-// SERVER-SIDE QUERY APPROACH (Bounding Box)
+// SERVER-SIDE QUERY APPROACH
 //--------------------------------------------
+
+/** 
+ * fetchStationsByBoundingBox:
+ *  Query Supabase for stations whose lat/lng is within [minLat, maxLat] and [minLng, maxLng].
+ *  You only get the subset from the DB – no front-end filtering needed.
+ */
 async function fetchStationsByBoundingBox(minLat, maxLat, minLng, maxLng) {
   const { data, error } = await supabase
     .from('a_to_b_stations')
@@ -194,24 +195,17 @@ async function fetchStationsByBoundingBox(minLat, maxLat, minLng, maxLng) {
   return data
 }
 
-// NEW: Fetch all stations regardless of bounding box
-async function fetchAllStations() {
-  const { data, error } = await supabase
-    .from('a_to_b_stations')
-    .select('id, lat, lng, brand_name, station_name, address, city, state')
-    
-  if (error) {
-    console.error('[fetchAllStations] Error:', error)
-    return []
-  }
-  return data
-}
-
+/**
+ * fetchAndCreateMarkers: 
+ *  1) Clears existing markers
+ *  2) Creates new markers for the subset of station data
+ */
 function fetchAndCreateMarkers(stationData) {
   // Clear existing markers
   markers.value.forEach(m => m.setMap(null))
   markers.value = []
 
+  // Create a marker for each station
   stationData.forEach(station => {
     if (!station.lat || !station.lng) return
 
@@ -252,9 +246,27 @@ function fetchAndCreateMarkers(stationData) {
   })
 }
 
+/**
+ * fetchAndCreateMarkersAllStations (optional):
+ *  If you want to load everything from DB (like your old approach),
+ *  you can do it here – but it's purely optional.
+ */
+async function fetchAndCreateMarkersAllStations() {
+  const { data, error } = await supabase
+    .from('a_to_b_stations')
+    .select('id, lat, lng, brand_name, station_name, address, city, state')
+
+  if (error) {
+    console.error('Error fetching all stations:', error)
+    return
+  }
+  fetchAndCreateMarkers(data)
+}
+
 //--------------------------------------------
 // SINGLE ADDRESS LOOKUP
 //--------------------------------------------
+
 async function handleLookup() {
   if (!lookupAddress.value) return
   const location = await geocodeAddress(lookupAddress.value)
@@ -265,30 +277,32 @@ async function handleLookup() {
   map.value.setCenter(location)
   map.value.setZoom(10)
 
-  // Approx bounding box ~50 miles each direction
-  const degRadius = 0.72 
+  // Let's create a bounding box ~ 50 miles around the address
+  // 1 degree of lat ~ 69 miles, so ~0.72 degrees lat for 50 miles.
+  // For simplicity, let's do ~0.72 for both lat & lng, though "lng degrees" vary with latitude.
+  const degRadius = 0.72
   const minLat = location.lat - degRadius
   const maxLat = location.lat + degRadius
   const minLng = location.lng - degRadius
   const maxLng = location.lng + degRadius
 
+  // 2) Fetch only stations in that bounding box from supabase
   const stationsSubset = await fetchStationsByBoundingBox(minLat, maxLat, minLng, maxLng)
-  fetchAndCreateMarkers(stationsSubset)
 
-  emit('filtered', {
-    stations: stationsSubset,
-    reference: location
-  })
+  // 3) Clear / create markers
+  fetchAndCreateMarkers(stationsSubset)
 }
 
 //--------------------------------------------
-// ROUTE LOOKUP
+// ROUTE LOOKUP (Bounding Box)
 //--------------------------------------------
+
 async function calculateRoute() {
   if (!fromAddress.value || !toAddress.value) {
     alert('Please enter both a starting and ending address.')
     return
   }
+  // Geocode both addresses
   const origin = await geocodeAddress(fromAddress.value)
   const destination = await geocodeAddress(toAddress.value)
   if (!origin || !destination) {
@@ -306,9 +320,13 @@ async function calculateRoute() {
       directionsRenderer.setDirections(result)
       const poly = result.routes?.[0]?.overview_polyline
       const encoded = typeof poly === 'string' ? poly : poly?.points
-      if (!encoded) return console.error('No encoded polyline found.')
-
+      if (!encoded) {
+        console.error('No encoded polyline found in route result.')
+        return
+      }
       const pathArray = google.maps.geometry.encoding.decodePath(encoded)
+
+      // Compute bounding box from route
       let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity
       pathArray.forEach(pt => {
         const lat = pt.lat()
@@ -318,6 +336,8 @@ async function calculateRoute() {
         if (lng < minLng) minLng = lng
         if (lng > maxLng) maxLng = lng
       })
+
+      // Optional margin
       const latMargin = (maxLat - minLat) * 0.1
       const lngMargin = (maxLng - minLng) * 0.1
       minLat -= latMargin
@@ -325,13 +345,12 @@ async function calculateRoute() {
       minLng -= lngMargin
       maxLng += lngMargin
 
-      const stationsSubset = await fetchStationsByBoundingBox(minLat, maxLat, minLng, maxLng)
-      fetchAndCreateMarkers(stationsSubset)
+      console.log(`Route bounding box lat [${minLat},${maxLat}], lng [${minLng},${maxLng}]`)
+
+      // Now fetch from supabase only those stations
+      const stationResults = await fetchStationsByBoundingBox(minLat, maxLat, minLng, maxLng)
+      fetchAndCreateMarkers(stationResults)
       
-      emit('filtered', {
-        stations: stationsSubset,
-        reference: origin
-      })
     } else {
       console.error('Error calculating route:', status)
       alert(`Unable to calculate route: ${status}`)
@@ -340,7 +359,7 @@ async function calculateRoute() {
 }
 
 //--------------------------------------------
-// CLEAR / REFRESH
+// CLEAR / UTILITY
 //--------------------------------------------
 function clearRouteInputs() {
   fromAddress.value = ''
@@ -349,42 +368,12 @@ function clearRouteInputs() {
   clearDirections()
 }
 
-/** 
- * NEW: refreshMap
- *   - Clears route/addresses
- *   - Removes markers
- *   - Resets map to default center & zoom
- */
-function refreshMap() {
-  console.log('Refreshing map...');
-  
-  // Clear inputs and directions:
-  fromAddress.value = '';
-  toAddress.value = '';
-  lookupAddress.value = '';
-  clearDirections();
-
-  // Clear markers:
-  markers.value.forEach(m => m.setMap(null))
-  markers.value = [];
-
-  // Reset toggle state if needed:
-  allStationsVisible.value = false;
-
-  // Destroy and reinitialize map:
-  map.value = null;
-  initMap();
-  
-  // Clear the nearby station list data:
-  emit('clearFiltered');
-}
-
 function clearDirections() {
   if (directionsRenderer) directionsRenderer.set('directions', null)
 }
 
 //--------------------------------------------
-// AUTOCOMPLETE & MISC
+// UI Controls & Autocomplete
 //--------------------------------------------
 function toggleTools() {
   toolsExpanded.value = !toolsExpanded.value
@@ -432,9 +421,12 @@ function initAutocomplete(inputEl, modelRef) {
   })
 }
 
-// Basic geocode function
+/**
+ * geocodeAddress:
+ *  Basic geocoding call to get lat/lng from an address string
+ */
 async function geocodeAddress(address) {
-  const apiKey = 'AIzaSyDYpNJXRFRuQq5IV8LQZi8E90r1gIaiORI'
+  const apiKey = 'YOUR_API_KEY'
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`
   try {
     const resp = await fetch(url)
@@ -445,23 +437,6 @@ async function geocodeAddress(address) {
   } catch (err) {
     console.error(err)
     return null
-  }
-}
-
-// -------------------------------------
-// NEW: Toggle All Stations Functionality
-// -------------------------------------
-async function toggleAllStations() {
-  // Toggle the state
-  allStationsVisible.value = !allStationsVisible.value
-  if (allStationsVisible.value) {
-    // When toggled on, fetch all stations and create markers.
-    const allStations = await fetchAllStations()
-    fetchAndCreateMarkers(allStations)
-  } else {
-    // When toggled off, remove the markers.
-    markers.value.forEach(m => m.setMap(null))
-    markers.value = []
   }
 }
 </script>
