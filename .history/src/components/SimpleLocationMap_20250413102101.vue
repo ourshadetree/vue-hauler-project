@@ -95,12 +95,12 @@ const map = ref(null)
 const markers = ref([])
 let infoWindow = null
 const defaultCenter = { lat: 39.8283, lng: -98.5795 }
-const defaultZoom = 4
+const defaultZoom = 5
 
 // Toolbox / UI
 const toolsExpanded = ref(false)
 const currentMapType = ref('roadmap')
-const allStationsVisible = ref(false) // NEW: controls display of all stations
+const allStationsVisible = ref(true) // NEW: controls display of all stations
 
 // Address fields
 const lookupAddress = ref('')

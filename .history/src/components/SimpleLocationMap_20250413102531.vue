@@ -74,7 +74,6 @@
       <button class="collapse-button" @click="toggleTools">Collapse</button>
     </div>
     
-
     <!-- Map container -->
     <div id="stationMapFool" class="map"></div>
   </div>
@@ -95,12 +94,15 @@ const map = ref(null)
 const markers = ref([])
 let infoWindow = null
 const defaultCenter = { lat: 39.8283, lng: -98.5795 }
-const defaultZoom = 4
+const defaultZoom = 5
 
 // Toolbox / UI
 const toolsExpanded = ref(false)
 const currentMapType = ref('roadmap')
-const allStationsVisible = ref(false) // NEW: controls display of all stations
+// ----------------------------
+// DEFAULT STATE REVERSED: all stations are visible on load.
+// ----------------------------
+const allStationsVisible = ref(true)
 
 // Address fields
 const lookupAddress = ref('')
@@ -154,7 +156,7 @@ async function initMap() {
   directionsRenderer = new google.maps.DirectionsRenderer({ suppressMarkers: false })
   directionsRenderer.setMap(map.value)
 
-  // Initially, no stations are fetched
+  // If tools are visible, initialize autocomplete inputs
   await nextTick()
   if (toolsExpanded.value && lookupInput.value) {
     initAutocomplete(lookupInput.value, lookupAddress)
@@ -172,6 +174,14 @@ async function initMap() {
       const place = toAuto.getPlace()
       if (place && place.formatted_address) toAddress.value = place.formatted_address
     })
+  }
+  
+  // ------------------------------
+  // When the map loads, all stations are fetched and displayed by default.
+  // ------------------------------
+  if (allStationsVisible.value) {
+    const allStations = await fetchAllStations()
+    fetchAndCreateMarkers(allStations)
   }
 }
 
@@ -256,9 +266,9 @@ function fetchAndCreateMarkers(stationData) {
 // SINGLE ADDRESS LOOKUP
 //--------------------------------------------
 async function handleLookup() {
-  // Destroy and reinitialize map:
-    map.value = null;
-    initMap();
+  // Reinitialize map:
+  map.value = null;
+  initMap();
   if (!lookupAddress.value) return
   const location = await geocodeAddress(lookupAddress.value)
   if (!location) {
@@ -288,9 +298,14 @@ async function handleLookup() {
 // ROUTE LOOKUP
 //--------------------------------------------
 async function calculateRoute() {
-  // Destroy and reinitialize map:
-    map.value = null;
-    initMap();
+  // Reinitialize map:
+  map.value = null;
+  initMap();
+  if (allStationsVisible.value) {
+    // When toggled off, remove the markers.
+    markers.value.forEach(m => m.setMap(null))
+    markers.value = []
+  }
   if (!fromAddress.value || !toAddress.value) {
     alert('Please enter both a starting and ending address.')
     return
@@ -360,6 +375,7 @@ function clearRouteInputs() {
  *   - Clears route/addresses
  *   - Removes markers
  *   - Resets map to default center & zoom
+ *   - Resets the station toggle to true
  */
 function refreshMap() {
   console.log('Refreshing map...');
@@ -374,10 +390,10 @@ function refreshMap() {
   markers.value.forEach(m => m.setMap(null))
   markers.value = [];
 
-  // Reset toggle state if needed:
-  allStationsVisible.value = false;
+  // Reset toggle state so that all stations are visible
+  allStationsVisible.value = true;
 
-  // Destroy and reinitialize map:
+  // Reinitialize map:
   map.value = null;
   initMap();
   

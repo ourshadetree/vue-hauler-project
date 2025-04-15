@@ -20,7 +20,7 @@ export default {
 <style scoped>
 /* Overall Container: Blue background with white text */
 #memberServicesContainer {
-  height: 200vh;
+  min-height: 100vh;
 }
 
 </style>
