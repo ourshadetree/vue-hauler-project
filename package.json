@@ -17,10 +17,12 @@
     "vuex": "^4.0.0"
   },
   "devDependencies": {
+    "@supabase/functions-js": "^2.4.4",
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-router": "~5.0.0",
     "@vue/cli-plugin-vuex": "~5.0.0",
-    "@vue/cli-service": "~5.0.0",
+    "@vue/cli-service": "^3.3.1",
+    "@vue/compiler-sfc": "^3.5.13",
     "gh-pages": "^6.3.0"
   }
 }
