@@ -1,0 +1,1 @@
+var r,e;function o(){return e||(e=1,r=function(){throw new Error("ws does not work in the browser. Browser clients must use the native WebSocket object")}),r}var t=o();const s=Object.freeze(Object.defineProperty({__proto__:null,default:t},Symbol.toStringTag,{value:"Module"}));export{s as b};
