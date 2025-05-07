@@ -4,39 +4,31 @@ import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
-  plugins: [
-    vue()
-  ],
-
+  plugins: [vue()],
   resolve: {
     alias: {
+      // your existing @ → src alias
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      // force Vite to pull in the CJS entrypoint for fast-deep-equal
+      'fast-deep-equal': 'fast-deep-equal/index.js',
     },
   },
-
   optimizeDeps: {
+    // ensure Vite pre-bundles fast-deep-equal with esbuild
     include: ['fast-deep-equal'],
   },
-
   build: {
     commonjsOptions: {
-      // wrap CommonJS defaults for these packages
-      include: [
-        /node_modules/,
-        /@supabase\/postgrest-js/,
-        /@supabase\/supabase-js/,
-        /fast-deep-equal/,
-      ],
-      defaultIsModuleExports: true,
+      // treat it as CJS so Rollup will wrap a default export
+      include: [/node_modules\/fast-deep-equal/],
     },
   },
-
   server: {
     proxy: {
       '/functions': {
         target: 'https://mbxccttqktcqrmqlzcva.supabase.co/functions/v1',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/functions/, ''),
+        rewrite: path => path.replace(/^\/functions/, ''),
       },
     },
     watch: {
