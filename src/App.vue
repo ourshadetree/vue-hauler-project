@@ -170,30 +170,42 @@ html, body, #app {
   background-color: #fff;
 }
 
-/* Left nav */
+/* Left nav - desktop */
 nav {
-  position: fixed; top: 0; left: 0;
+  position: fixed;
+  top: 0; left: 0;
   width: 120px; height: 100%;
   padding-top: 90px;
   background: #fff;
   border-right: 1px solid #e5e5e5;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 nav a {
-  display: block; padding: 15px;
-  text-decoration: none; color: #0C2442;
+  display: block;
+  padding: 15px;
+  text-decoration: none;
+  color: #0C2442;
 }
 nav a.router-link-exact-active {
-  color: #B11818; font-weight: bold;
+  color: #B11818;
+  font-weight: bold;
   border-left: 2px solid #B11818;
 }
 
 /* Top banner */
 #bannerBox {
-  position: fixed; top: 0; left: 120px; right: 0;
+  position: fixed;
+  top: 0; left: 120px; right: 0;
   height: 50px;
   background: #0C2442;
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 0 20px; z-index: 999;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 999;
 }
 #banner {
   width: 22%; height: 75%;
@@ -201,11 +213,17 @@ nav a.router-link-exact-active {
 
 /* Auth buttons */
 .auth-buttons {
-  display: flex; align-items: center; gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 .auth-buttons button {
-  padding: 8px 12px; background: #B11818; color: #fff;
-  border: none; border-radius: 4px; cursor: pointer;
+  padding: 8px 12px;
+  background: #B11818;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
   font-size: 0.9rem;
 }
 .auth-buttons button:hover {
@@ -219,23 +237,34 @@ nav a.router-link-exact-active {
 
 /* Profile icon & menu */
 .profile-container {
-  position: relative; cursor: pointer;
+  position: relative;
+  cursor: pointer;
 }
 .profile-icon {
-  width: 30px; height: 30px; border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
 }
 .profile-placeholder {
-  width: 30px; height: 30px; border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
   background-color: #CCCCCC;
 }
 .profile-menu {
-  position: absolute; top: 110%; right: 0;
-  background: #fff; border: 1px solid #ddd; border-radius: 4px;
+  position: absolute;
+  top: 110%; right: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  list-style: none; padding: 0.5rem 0; z-index: 1000;
+  list-style: none;
+  padding: 0.5rem 0;
+  z-index: 1000;
 }
 .profile-menu li {
-  padding: 0.5rem 1rem; white-space: nowrap;
+  padding: 0.5rem 1rem;
+  white-space: nowrap;
   cursor: pointer;
 }
 .profile-menu li:hover {
@@ -247,5 +276,28 @@ nav a.router-link-exact-active {
   margin-left: 120px;
   margin-top: 50px;
   padding: 20px;
+}
+
+/* Responsive tweak: stack nav on mobile */
+@media (max-width: 767px) {
+  nav {
+    position: static;
+    width: 100%; height: auto;
+    padding: 0.5rem 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    border-right: none;
+    border-bottom: 1px solid #e5e5e5;
+    margin-top: 50px; /* push below banner */
+    z-index: 100; /* ensure it's below banner */
+  }
+  #bannerBox {
+    left: 0;
+  }
+  #pageContent {
+    margin-left: 0;
+    margin-top: 50px;
+  }
 }
 </style>
