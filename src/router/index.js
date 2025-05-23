@@ -14,6 +14,8 @@ import ContactView    from '@/views/ContactView.vue'
 import SignInView     from '@/views/SignInView.vue'
 import SignUpView     from '@/views/SignUpView.vue'
 
+const base = '/vue-hauler-project/'
+
 const routes = [
   { path: '/',           name: 'home',        component: HomeView },
   { path: '/about',      name: 'about',       component: AboutView },
@@ -38,7 +40,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHashHistory(base),
   routes,
 })
 
