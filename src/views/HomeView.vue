@@ -60,6 +60,8 @@ onMounted(() => {
   if (route.query.signedUp === 'true') {
     showModal.value = true
   }
+
+  console.log('HomeView mounted')
 })
 
 function closeModal() {

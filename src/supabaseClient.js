@@ -1,18 +1,25 @@
 // src/supabaseClient.js
 import { createClient } from '@supabase/supabase-js'
 
-// Vite only exposes env vars prefixed with VITE_
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 if (!supabaseUrl || !supabaseKey) {
   console.error(
-    '[supabaseClient] ⚠️ Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. ' +
-    'Make sure you have these in your .env file.'
+    '[supabaseClient] ⚠️ Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY.'
   )
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey)
+// **Explicitly tell supabase to persist sessions in window.localStorage**
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,  // ✅ Auto-refresh tokens before they expire
+    crossTab: true,          // ✅ Sync auth state across multiple tabs
+    detectSessionInUrl: false, // ✅ Prevent session from being rehydrated from URL
+    storage: window.localStorage // persist session in localStorage
+  }
+})
 
-console.log('[supabaseClient] Supabase URL:', supabaseUrl)
-console.log('[supabaseClient] Supabase Key:', supabaseKey)
+console.log('[supabaseClient] using storage:', supabase.auth.storage)  
+export { supabase }

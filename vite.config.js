@@ -4,7 +4,7 @@ import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
-  base: '/vue-hauler-project',
+  base: '/',
   plugins: [
     vue()
   ],
@@ -44,5 +44,6 @@ export default defineConfig({
       usePolling: true,
       interval: 100,
     },
+    historyAPIFallback: true,
   },
 })
