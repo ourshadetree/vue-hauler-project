@@ -6,8 +6,9 @@ import VueGoogleMaps from '@fawmi/vue-google-maps'
 import { supabase } from '@/supabaseClient'   // @ → src alias in vite.config.js
 import { auth } from '@/composables/useAuth' // @ → src alias in vite.config.js
 
-// 1) Register Vuex, Router, Google Maps
 const app = createApp(App)
+
+// 1) Register Vuex, Router, Google Maps
 app.use(store)
 app.use(router)
 app.use(VueGoogleMaps, {
@@ -66,21 +67,9 @@ supabase.auth.onAuthStateChange(async (event, session) => {
 
 // 4) Initialize app and mount only after session is restored
 async function init() {
-  try {
-    // First, restore the session
-    await restoreSession()
-
-    // Once the session is restored, initialize the app
-    auth.initAuthListener()  // listen for auth changes after session load
-    app.mount('#app')  // Mount the app only after session is restored
-  } catch (error) {
-    console.error('Error during app initialization:', error)
-  }
+  // Wait for session to load, then mount app
+  await restoreSession()
+  createApp(App).use(store).use(router).mount('#app')
 }
 
 init()
-
-// Global error handler
-app.config.errorHandler = (err, _vm, info) => {
-  console.error('⚠️ Global error handler:', err, info)
-}
