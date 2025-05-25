@@ -55,12 +55,16 @@ const { user, profileName, signOut, loadUser } = auth  // Destructure auth from 
 
 // Wait for the user session to be restored before rendering the app
 onMounted(async () => {
-  await loadUser()  // Load the user session
-  if (!user.value) {
-    // If no user is logged in, redirect to sign-in page
-    router.push({ name: 'signin' })
+  try {
+    await loadUser()  // Load the user session
+    if (!user.value) {
+      router.push({ name: 'signin' })  // Redirect to sign-in if no user
+    }
+  } catch (error) {
+    console.error('Error loading user session:', error)
+  } finally {
+    isLoading.value = false  // Set loading state to false after session is loaded
   }
-  isLoading.value = false  // Set loading state to false after session is loaded
 })
 
 const router = useRouter()
