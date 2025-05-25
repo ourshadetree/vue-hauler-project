@@ -25,13 +25,23 @@ export const userState = reactive({ user: null })
 
 // 2) Restore session before mounting the app
 async function restoreSession() {
-  const { data: { session }, error } = await supabase.auth.getSession()
-  if (error) {
-    console.error('Error restoring session:', error)
-  } else if (session) {
-    console.log('Session restored:', session)
-    userState.user = session?.user || null
-    // optionally commit to Vuex or Pinia store here
+  const storedSession = localStorage.getItem('supabaseSession')
+  if (storedSession) {
+    // If session is in localStorage, use it
+    const session = JSON.parse(storedSession)
+    userState.user = session.user
+    console.log('Session restored from localStorage:', session)
+  } else {
+    // If not in localStorage, get it from Supabase
+    const { data: { session }, error } = await supabase.auth.getSession()
+    if (error) {
+      console.error('Error restoring session from Supabase:', error)
+    } else if (session) {
+      console.log('Session restored from Supabase:', session)
+      userState.user = session.user
+      // Store session in localStorage for persistence across page refreshes
+      localStorage.setItem('supabaseSession', JSON.stringify(session))
+    }
   }
 }
 
@@ -39,36 +49,18 @@ async function restoreSession() {
 supabase.auth.onAuthStateChange(async (event, session) => {
   if (event === 'SIGNED_IN' && session?.user) {
     userState.user = session.user
-    // your existing user_profiles logic here
-    const userId = session.user.id
-    const { data: existing, error: fetchErr } = await supabase
-      .from('user_profiles')
-      .select('user_id')
-      .eq('user_id', userId)
-      .single()
-
-    if (fetchErr && fetchErr.code !== 'PGRST116') {
-      console.error('Error checking user_profiles:', fetchErr)
-      return
-    }
-
-    if (!existing) {
-      const { error: insertErr } = await supabase
-        .from('user_profiles')
-        .insert({ user_id: userId })
-      if (insertErr) {
-        console.error('Error creating user_profiles row:', insertErr)
-      }
-    }
+    // Store the session in localStorage when user signs in
+    localStorage.setItem('supabaseSession', JSON.stringify(session))
   } else if (event === 'SIGNED_OUT') {
     userState.user = null
+    localStorage.removeItem('supabaseSession')
   }
 })
 
 // 4) Initialize app and mount only after session is restored
 async function init() {
   // Wait for session to load, then mount app
-  await restoreSession()
+  await restoreSession()  // Ensure session is restored
   createApp(App).use(store).use(router).mount('#app')
 }
 
