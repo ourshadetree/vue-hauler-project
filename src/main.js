@@ -1,4 +1,3 @@
-// src/main.js
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
@@ -7,9 +6,8 @@ import VueGoogleMaps from '@fawmi/vue-google-maps'
 import { supabase } from '@/supabaseClient'   // @ → src alias in vite.config.js
 import { auth } from '@/composables/useAuth' // @ → src alias in vite.config.js
 
-const app = createApp(App)
-
 // 1) Register Vuex, Router, Google Maps
+const app = createApp(App)
 app.use(store)
 app.use(router)
 app.use(VueGoogleMaps, {
@@ -66,10 +64,18 @@ supabase.auth.onAuthStateChange(async (event, session) => {
   }
 })
 
+// 4) Initialize app and mount only after session is restored
 async function init() {
-  await auth.loadUser()  // load session first
-  auth.initAuthListener()  // listen for auth changes after
-  createApp(App).use(store).use(router).mount('#app')
+  try {
+    // First, restore the session
+    await restoreSession()
+
+    // Once the session is restored, initialize the app
+    auth.initAuthListener()  // listen for auth changes after session load
+    app.mount('#app')  // Mount the app only after session is restored
+  } catch (error) {
+    console.error('Error during app initialization:', error)
+  }
 }
 
 init()
@@ -78,13 +84,3 @@ init()
 app.config.errorHandler = (err, _vm, info) => {
   console.error('⚠️ Global error handler:', err, info)
 }
-
-// Wait to restore session first, then mount app
-restoreSession()
-  .catch((e) => {
-    console.error('Error restoring session:', e)
-  })
-  .finally(() => {
-    app.mount('#app')
-  })
-

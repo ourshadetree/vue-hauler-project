@@ -1,6 +1,8 @@
 <template>
-  <div id="app">
+  <div id="app" v-if="!isLoading">
+    <!-- Debug message for user presence -->
     <p style="color: red;">DEBUG: user is {{ user ? 'present' : 'null' }}</p>
+
     <!-- Left nav -->
     <nav>
       <router-link to="/" exact>Home</router-link>
@@ -35,31 +37,40 @@
       <router-view />
     </div>
   </div>
+
+  <!-- Loading screen while the session is being restored -->
+  <div v-else class="loading">
+    <p>Loading...</p>
+  </div>
 </template>
 
 <script setup>
-import { onMounted, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { auth } from '@/composables/useAuth'  // Use the singleton auth state
 
-const userPresent = computed(() => user.value !== null)
-
-const router = useRouter()
+// Loading state to prevent rendering until user session is ready
+const isLoading = ref(true)
 const { user, profileName, signOut, loadUser } = auth  // Destructure auth from singleton
 
+// Wait for the user session to be restored before rendering the app
 onMounted(async () => {
-  await loadUser()  // Load the user on app mount
+  await loadUser()  // Load the user session
   if (!user.value) {
-    router.push({ name: 'signin' })  // Redirect if no user is signed in
+    // If no user is logged in, redirect to sign-in page
+    router.push({ name: 'signin' })
   }
+  isLoading.value = false  // Set loading state to false after session is loaded
 })
+
+const router = useRouter()
 
 function goToProfile() {
   router.push({ name: 'profile' })
 }
 </script>
 
-<style>
+<style scoped>
 /* Reset */
 * {
   margin: 0;
@@ -155,6 +166,13 @@ nav a.router-link-exact-active {
   margin-left: 120px;
   margin-top: 50px;
   padding: 20px;
+}
+
+/* Loading state */
+.loading {
+  text-align: center;
+  font-size: 1.5rem;
+  color: #0C2442;
 }
 
 /* Responsive tweak: stack nav on mobile */
