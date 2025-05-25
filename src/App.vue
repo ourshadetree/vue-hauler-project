@@ -45,13 +45,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { auth } from '@/composables/useAuth'  // Use the singleton auth state
+import { nextTick } from 'vue'
 
-// Loading state to prevent rendering until user session is ready
 const isLoading = ref(true)
 const { user, profileName, signOut, loadUser } = auth  // Destructure auth from singleton
+const router = useRouter()
 
 // Wait for the user session to be restored before rendering the app
 onMounted(async () => {
@@ -63,11 +64,12 @@ onMounted(async () => {
   } catch (error) {
     console.error('Error loading user session:', error)
   } finally {
-    isLoading.value = false  // Set loading state to false after session is loaded
+    // After the session is loaded, make sure Vue updates the DOM properly
+    nextTick(() => {
+      isLoading.value = false  // Set loading state to false after session is loaded
+    })
   }
 })
-
-const router = useRouter()
 
 function goToProfile() {
   router.push({ name: 'profile' })
