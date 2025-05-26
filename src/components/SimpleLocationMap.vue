@@ -109,6 +109,7 @@ const reference = ref({ lat: 39.8283, lng: -98.5795 }) // Default center of the 
 const defaultCenter = { lat: 39.8283, lng: -98.5795 }
 const defaultZoom = 4
 
+
 // Toolbox / UI
 const toolsExpanded = ref(true)
 const currentMapType = ref('roadmap')
@@ -131,18 +132,40 @@ const emit = defineEmits(['filtered'])
 //-------------------------------------------------
 //  MOUNTED: Initialize the map
 //-------------------------------------------------
+
+
+
+const waitForGoogleMaps = () => {
+  return new Promise((resolve) => {
+    if (window.google && window.google.maps) {
+      resolve()
+    } else {
+      const interval = setInterval(() => {
+        if (window.google && window.google.maps) {
+          clearInterval(interval)
+          resolve()
+        }
+      }, 100)
+    }
+  })
+}
+
 onMounted(async () => {
-  if (window.google && window.google.maps) {
-    initMap()
-  } else {
-    const interval = setInterval(() => {
-      if (window.google && window.google.maps) {
-        clearInterval(interval)
-        initMap()
-      }
-    }, 100)
+  console.log('📍 SimpleLocationMap mounted')
+  await waitForGoogleMaps()
+  await nextTick()
+  const el = document.getElementById('stationMapFool')
+  if (!el) {
+    console.error('❌ #stationMapFool not found in DOM')
+    return
   }
+  console.log('✅ Google Maps ready, initializing map...')
+  initMap()
 })
+
+
+
+
 
 /**
  * Pan/bounce + open the InfoWindow for exactly one station.
@@ -217,6 +240,19 @@ async function initMap() {
       if (place && place.formatted_address) toAddress.value = place.formatted_address
     })
   }
+
+  try {
+  map.value = new google.maps.Map(mapDiv, {
+    center: defaultCenter,
+    zoom: defaultZoom,
+    disableDefaultUI: true,
+    mapTypeId: currentMapType.value
+  })
+  console.log('✅ Map initialized')
+} catch (err) {
+  console.error('❌ Error during map init:', err)
+}
+
 }
 
 //--------------------------------------------

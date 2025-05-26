@@ -14,7 +14,7 @@
 
       <!-- Wizard (if not finished) -->
       <component
-        v-if="!profile.is_finished"
+        v-if="showWizard"
         :is="steps[currentStep].component"
         v-model:profile="profile"
         @valid="stepValid = $event"
@@ -42,7 +42,8 @@
       </div>
 
       <!-- Wizard navigation -->
-      <div v-if="!profile.is_finished" class="wizard-nav">
+      <div v-if="showWizard" class="wizard-nav">
+
         <button @click="prev" :disabled="currentStep === 0">Back</button>
         <button
           v-if="currentStep < steps.length - 1"
@@ -67,6 +68,9 @@
 import { ref, reactive, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { auth } from '@/composables/useAuth'
+import { nextTick } from 'vue'
+import { computed } from 'vue'
+import { toRaw } from 'vue'
 
 import BusinessInfo           from '@/components/wizard/BusinessInfo.vue'
 import BusinessFinances       from '@/components/wizard/BusinessFinances.vue'
@@ -75,6 +79,8 @@ import PrimaryBusinessAddress from '@/components/wizard/PrimaryBusinessAddress.v
 import CardDetails            from '@/components/wizard/CardDetails.vue'
 import CardShipment           from '@/components/wizard/CardShipment.vue'
 import TermsOfService         from '@/components/wizard/TermsOfService.vue'
+
+const showWizard = computed(() => !profile.is_finished && currentStep.value >= 0)
 
 const router = useRouter()
 const { user, signOut, loading: authLoading } = auth
@@ -196,18 +202,37 @@ function prev() {
 
 async function finish() {
   isLoading.value = true
-  profile.is_finished = true
+
+  const updatedProfile = { ...profile, is_finished: true }
+
   const { error } = await import('@/supabaseClient').then(({ supabase }) =>
-    supabase.from('user_profiles').upsert(profile)
+  supabase.from('user_profiles').upsert({ ...toRaw(updatedProfile) })
+
   )
-  if (error) alert('Save failed: ' + error.message)
+
+  if (error) {
+    alert('Save failed: ' + error.message)
+    isLoading.value = false
+    return
+  }
+
+  // Safely update reactive state
+  profile.is_finished = true
+
+  // Wait for Vue to detect the change and unmount the wizard
+  await nextTick()
+
   isLoading.value = false
+  alert('Your application has been submitted!')
 }
+
+
+
 
 async function saveChanges() {
   isLoading.value = true
   const { error } = await import('@/supabaseClient').then(({ supabase }) =>
-    supabase.from('user_profiles').upsert(profile)
+  supabase.from('user_profiles').upsert({ ...toRaw(updatedProfile) })
   )
   if (error) {
     alert('Save failed: ' + error.message)
@@ -217,9 +242,23 @@ async function saveChanges() {
   isLoading.value = false
 }
 
-onMounted(() => {
+onMounted(async () => {
   console.log('ProfileView mounted')
+
+  // If no user is loaded yet, wait for it
+  if (!user.value?.id) {
+    console.log('[mount] No user yet. Loading...')
+    const { loadUser } = auth
+    await loadUser()
+  }
+
+  // Then load profile
+  if (user.value?.id) {
+    console.log('[mount] User loaded. Loading profile...')
+    await loadProfile(user.value.id)
+  }
 })
+
 </script>
 
 <style scoped>

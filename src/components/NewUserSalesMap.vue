@@ -4,28 +4,24 @@
     <div id="simpleMapNewUser" class="mapCanvas"></div>
 
     <!-- Inline overlay—only covers the mapContainer -->
-   <div v-if="showInitialModal" class="map-modal-overlay">
-     <div class="sales-pitch">
-       <h2>Welcome!</h2>
-       <p>
-         Search your DOT number to load your details and unlock exclusive
-         discounts plus automated load-matching.
-       </p>
-       <button @click="closeInitialModal">Get Started</button>
-     </div>
-   </div>
-    
+    <div v-if="showInitialModal" class="map-modal-overlay">
+      <div class="sales-pitch">
+        <h2>Welcome!</h2>
+        <p>
+          Search your DOT number to load your details and unlock exclusive
+          discounts plus automated load-matching.
+        </p>
+        <button @click="closeInitialModal">Get Started</button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import { mapState } from 'vuex'
-import { supabase } from '@/supabaseClient'
-import Modal from '@/components/Modal.vue'
 
 export default {
   name: 'NewUserSalesMap',
-  components: { Modal },
 
   computed: {
     ...mapState(['dotSearchActionResults'])
@@ -50,7 +46,22 @@ export default {
     },
 
     async initMap() {
-      await this.$gmapApiPromiseLazy()
+      const waitForGoogleMaps = () => {
+        return new Promise((resolve) => {
+          if (window.google && window.google.maps) {
+            resolve()
+          } else {
+            const interval = setInterval(() => {
+              if (window.google && window.google.maps) {
+                clearInterval(interval)
+                resolve()
+              }
+            }, 100)
+          }
+        })
+      }
+
+      await waitForGoogleMaps()
       this.clearOverlays()
       this.map = new google.maps.Map(
         document.getElementById('simpleMapNewUser'),
@@ -108,7 +119,7 @@ export default {
   },
 
   mounted() {
-    this.initMap();
+    this.initMap()
   }
 }
 </script>
