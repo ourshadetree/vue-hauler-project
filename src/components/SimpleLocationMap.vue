@@ -16,16 +16,28 @@
       >
         Satellite
       </div>
-      <div class="layer-button" 
+      <div
+        class="layer-button"
         :class="{ active: !toolsExpanded }"
-        @click="toggleTools">
+        @click="toggleTools"
+      >
         {{ toolsExpanded ? 'Hide Tools' : 'Show Tools' }}
       </div>
-      <!-- New toggle button for All Stations -->
-      <div class="layer-button" 
-           :class="{ active: !allStationsVisible }"
-           @click="toggleAllStations">
+      <!-- Hide/Show All Stations -->
+      <div
+        class="layer-button"
+        :class="{ active: !allStationsVisible }"
+        @click="toggleAllStations"
+      >
         {{ allStationsVisible ? 'Hide All Stations' : 'Show All Stations' }}
+      </div>
+      <!-- Open in Google Maps (only after route) -->
+      <div
+        v-if="hasRoute"
+        class="layer-button"
+        @click="openInMaps"
+      >
+        Open in Maps
       </div>
     </div>
 
@@ -40,9 +52,9 @@
             ref="lookupInput"
             placeholder="Single address"
           />
-          <button type='button' @click="handleLookup">Go</button>
+          <button type="button" @click="handleLookup">Go</button>
         </div>
-        
+
         <!-- Routing Inputs -->
         <div class="control-group">
           <input
@@ -74,7 +86,6 @@
       </div>
       <button class="collapse-button" @click="toggleTools">Collapse</button>
     </div>
-    
 
     <!-- Map container -->
     <div id="stationMapFool" class="map"></div>
@@ -105,15 +116,16 @@ let infoWindow = null
 const stationMarkers = new Map()
 const nearbyStations = ref([])
 const activeStationId = ref(null)
-const reference = ref({ lat: 39.8283, lng: -98.5795 }) // Default center of the US
+const reference = ref({ lat: 39.8283, lng: -98.5795 }) // default origin
+const destinationCoord = ref(null)                    // store destination
 const defaultCenter = { lat: 39.8283, lng: -98.5795 }
 const defaultZoom = 4
-
 
 // Toolbox / UI
 const toolsExpanded = ref(true)
 const currentMapType = ref('roadmap')
-const allStationsVisible = ref(true) // NEW: controls display of all stations
+const allStationsVisible = ref(true)
+const hasRoute = ref(false)  // tracks if a route has been plotted
 
 // Address fields
 const lookupAddress = ref('')
@@ -122,6 +134,8 @@ const toAddress = ref('')
 const lookupInput = ref(null)
 const fromInput = ref(null)
 const toInput = ref(null)
+const fromLocation = ref(null)
+const toLocation = ref(null)
 
 // Directions
 let directionsService = null
@@ -132,14 +146,10 @@ const emit = defineEmits(['filtered'])
 //-------------------------------------------------
 //  MOUNTED: Initialize the map
 //-------------------------------------------------
-
-
-
 const waitForGoogleMaps = () => {
-  return new Promise((resolve) => {
-    if (window.google && window.google.maps) {
-      resolve()
-    } else {
+  return new Promise(resolve => {
+    if (window.google && window.google.maps) resolve()
+    else {
       const interval = setInterval(() => {
         if (window.google && window.google.maps) {
           clearInterval(interval)
@@ -151,153 +161,53 @@ const waitForGoogleMaps = () => {
 }
 
 onMounted(async () => {
-  console.log('📍 SimpleLocationMap mounted')
   await waitForGoogleMaps()
   await nextTick()
   const el = document.getElementById('stationMapFool')
-  if (!el) {
-    console.error('❌ #stationMapFool not found in DOM')
-    return
-  }
-  console.log('✅ Google Maps ready, initializing map...')
+  if (!el) return console.error('#stationMapFool not found')
   initMap()
 })
 
-
-
-
-
-/**
- * Pan/bounce + open the InfoWindow for exactly one station.
- * @param  {object} station  the station record with id, lat, lng, etc.
- * @param  {google.maps.Marker} marker the corresponding Marker instance
- */
- function showStationInfo(station, marker) {
-  // mark it active (so your list will highlight)
-  activeStationId.value = station.id;
-
-  // 1) pan & bounce
-  map.value.panTo(marker.getPosition());
-  marker.setAnimation(google.maps.Animation.BOUNCE);
-  setTimeout(() => marker.setAnimation(null), 1400);
-
-  // 2) build & open the InfoWindow
-  const content = `
-    <div style="max-width:250px;font-family:Arial,sans-serif">
-      <h3 style="margin:0 0 5px;">${station.brand_name || station.station_name}</h3>
-      <p style="margin:0;line-height:1.4">
-        ${station.address || ''}<br>
-        ${station.city || ''}${station.city && station.state ? ', ' : ''}${station.state || ''}
-      </p>
-    </div>`;
-  infoWindow.setContent(content);
-  infoWindow.open(map.value, marker);
-}
-
-// Initialize the map
+//--------------------------------------------
+// MAP & MARKERS
+//--------------------------------------------
 async function initMap() {
   const mapDiv = document.getElementById('stationMapFool')
-  if (!mapDiv) {
-    console.error('Error: #stationMapFool not found.')
-    return
-  }
-
   map.value = new google.maps.Map(mapDiv, {
     center: defaultCenter,
     zoom: defaultZoom,
     disableDefaultUI: true,
     mapTypeId: currentMapType.value
   })
-
   infoWindow = new google.maps.InfoWindow()
   map.value.addListener('click', () => infoWindow.close())
-
   directionsService = new google.maps.DirectionsService()
   directionsRenderer = new google.maps.DirectionsRenderer({ suppressMarkers: false })
   directionsRenderer.setMap(map.value)
 
-  // Initially, no stations are fetched
   await nextTick()
-  // INITIAL LOAD: show all stations if enabled
+
+  // ← Add back autocomplete initialization here:
+  if (toolsExpanded.value) {
+    if (lookupInput.value) initAutocomplete(lookupInput.value, lookupAddress)
+    if (fromInput.value) initPlacesAuto(fromInput.value, fromAddress, fromLocation)
+    if (toInput.value) initPlacesAuto(toInput.value, toAddress, toLocation)
+  }
+
   if (allStationsVisible.value) {
     const allStations = await fetchAllStations()
     fetchAndCreateMarkers(allStations)
   }
-  if (toolsExpanded.value && lookupInput.value) {
-    initAutocomplete(lookupInput.value, lookupAddress)
-  }
-  if (toolsExpanded.value && fromInput.value) {
-    const fromAuto = new google.maps.places.Autocomplete(fromInput.value, { types: ['geocode'] })
-    fromAuto.addListener('place_changed', () => {
-      const place = fromAuto.getPlace()
-      if (place && place.formatted_address) fromAddress.value = place.formatted_address
-    })
-  }
-  if (toolsExpanded.value && toInput.value) {
-    const toAuto = new google.maps.places.Autocomplete(toInput.value, { types: ['geocode'] })
-    toAuto.addListener('place_changed', () => {
-      const place = toAuto.getPlace()
-      if (place && place.formatted_address) toAddress.value = place.formatted_address
-    })
-  }
-
-  try {
-  map.value = new google.maps.Map(mapDiv, {
-    center: defaultCenter,
-    zoom: defaultZoom,
-    disableDefaultUI: true,
-    mapTypeId: currentMapType.value
-  })
-  console.log('✅ Map initialized')
-} catch (err) {
-  console.error('❌ Error during map init:', err)
 }
 
-}
-
-//--------------------------------------------
-// SERVER-SIDE QUERY APPROACH (Bounding Box)
-//--------------------------------------------
-async function fetchStationsByBoundingBox(minLat, maxLat, minLng, maxLng) {
-  const { data, error } = await supabase
-    .from('a_to_b_stations')
-    .select('id, lat, lng, brand_name, station_name, address, city, state')
-    .gte('lat', minLat)
-    .lte('lat', maxLat)
-    .gte('lng', minLng)
-    .lte('lng', maxLng)
-
-  if (error) {
-    console.error('[fetchStationsByBoundingBox] Error:', error)
-    return []
-  }
-  return data
-}
-
-// NEW: Fetch all stations regardless of bounding box
-async function fetchAllStations() {
-  const { data, error } = await supabase
-    .from('a_to_b_stations')
-    .select('id, lat, lng, brand_name, station_name, address, city, state')
-    
-  if (error) {
-    console.error('[fetchAllStations] Error:', error)
-    return []
-  }
-  return data
-}
 
 function fetchAndCreateMarkers(stationData) {
-  // clear any existing markers
   stationMarkers.forEach(m => m.setMap(null))
   stationMarkers.clear()
   markers.value = []
-
   stationData.forEach(station => {
     if (!station.lat || !station.lng) return
     const position = { lat: station.lat, lng: station.lng }
-
-    // your icon logic...
     let iconUrl = huIcon
     const bn = (station.brand_name||'').toLowerCase()
     if (bn.includes('speedway')) iconUrl = speedwayIcon
@@ -305,150 +215,178 @@ function fetchAndCreateMarkers(stationData) {
     else if (bn.includes('ta')) iconUrl = taIcon
     else if (bn.includes('maverick')) iconUrl = maverickIcon
 
-    const m = new google.maps.Marker({
+    const marker = new google.maps.Marker({
       position,
       map: map.value,
       title: station.brand_name || station.station_name || `Station ${station.id}`,
       icon: { url: iconUrl, scaledSize: new google.maps.Size(15,15) }
     })
-
-    // wire *all* markers to our unified popup helper
-    m.addListener('click', () => showStationInfo(station, m))
-
-    stationMarkers.set(station.id, m)
-    markers.value.push(m)
-  })
-}
-
-// ─── Handle a station being selected (from list or marker) ──────────────────
-function handleStationSelect(stationId) {
-  const station = nearbyStations.value.find(s => s.id === stationId);
-  const marker  = stationMarkers.get(stationId);
-
-  if (!station || !marker) return;
-
-  showStationInfo(station, marker);
-}
-
-
-
-//--------------------------------------------
-// SINGLE ADDRESS LOOKUP
-//--------------------------------------------
-async function handleLookup() {
-  nearbyStations.value = []
-  activeStationId.value = null
-  if(infoWindow) infoWindow.close()
-  clearDirections();
-  // Destroy and reinitialize map:
-    map.value = null;
-    initMap();
-
-    if(allStationsVisible.value) {
-      allStationsVisible.value = false;
-    } 
-
-
-  if (!lookupAddress.value) return
-  const location = await geocodeAddress(lookupAddress.value)
-  if (!location) {
-    alert('Address not found.')
-    return
-  }
-  reference.value = location
-  map.value.setCenter(location)
-  map.value.setZoom(10)
-
-  // Approx bounding box ~50 miles each direction
-  const degRadius = 0.72 
-  const minLat = location.lat - degRadius
-  const maxLat = location.lat + degRadius
-  const minLng = location.lng - degRadius
-  const maxLng = location.lng + degRadius
-
-  const stationsSubset = await fetchStationsByBoundingBox(minLat, maxLat, minLng, maxLng)
-  nearbyStations.value = stationsSubset
-  activeStationId.value = null
-  fetchAndCreateMarkers(stationsSubset)
-
-  emit('filtered', {
-    stations: stationsSubset,
-    reference: location
+    marker.addListener('click', () => showStationInfo(station, marker))
+    stationMarkers.set(station.id, marker)
+    markers.value.push(marker)
   })
 }
 
 //--------------------------------------------
-// ROUTE LOOKUP
+// INFO WINDOW
+//--------------------------------------------
+function showStationInfo(station, marker) {
+  activeStationId.value = station.id
+  map.value.panTo(marker.getPosition())
+  marker.setAnimation(google.maps.Animation.BOUNCE)
+  setTimeout(() => marker.setAnimation(null), 1400)
+  const content = `
+    <div style="max-width:250px;font-family:Arial,sans-serif">
+      <h3 style="margin:0 0 5px;">${station.brand_name || station.station_name}</h3>
+      <p style="margin:0;line-height:1.4">
+        ${station.address || ''}<br>
+        ${station.city || ''}${station.city && station.state ? ', ' : ''}${station.state || ''}
+      </p>
+    </div>`
+  infoWindow.setContent(content)
+  infoWindow.open(map.value, marker)
+}
+
+//--------------------------------------------
+// DATA FETCH
+//--------------------------------------------
+async function fetchStationsByBoundingBox(minLat, maxLat, minLng, maxLng) {
+  const { data, error } = await supabase
+    .from('a_to_b_stations')
+    .select('id, lat, lng, brand_name, station_name, address, city, state')
+    .gte('lat', minLat).lte('lat', maxLat)
+    .gte('lng', minLng).lte('lng', maxLng)
+  if (error) console.error(error)
+  return data || []
+}
+
+async function fetchAllStations() {
+  const { data, error } = await supabase
+    .from('a_to_b_stations')
+    .select('id, lat, lng, brand_name, station_name, address, city, state')
+  if (error) console.error(error)
+  return data || []
+}
+
+//--------------------------------------------
+// ROUTING & FILTERING
 //--------------------------------------------
 async function calculateRoute() {
+  // reset
   nearbyStations.value = []
   activeStationId.value = null
-  if(infoWindow) infoWindow.close()
-  clearDirections();
-  // Destroy and reinitialize map:
-    map.value = null;
-    initMap();
+  hasRoute.value = false
+  if (infoWindow) infoWindow.close()
+  clearDirections()
 
-    if(allStationsVisible.value) {
-      allStationsVisible.value = false;
-    } 
+  // re-init map
+  map.value = null
+  initMap()
+  allStationsVisible.value = false
 
-
+  // require at least text in both fields
   if (!fromAddress.value || !toAddress.value) {
-    alert('Please enter both a starting and ending address.')
-    return
+    return alert('Please enter both a starting and ending address.')
   }
-  const origin = await geocodeAddress(fromAddress.value)
-  const destination = await geocodeAddress(toAddress.value)
+
+  // use selected autocomplete locations if present, otherwise geocode
+  const origin = fromLocation.value
+    ? fromLocation.value
+    : await geocodeAddress(fromAddress.value)
+  const destination = toLocation.value
+    ? toLocation.value
+    : await geocodeAddress(toAddress.value)
+
   if (!origin || !destination) {
-    alert('Unable to geocode one or both addresses.')
-    return
+    return alert('Unable to load one or both addresses.')
   }
-  
-  const request = {
+
+  // store for export
+  reference.value       = origin
+  destinationCoord.value = destination
+
+  directionsService.route({
     origin,
     destination,
     travelMode: google.maps.TravelMode.DRIVING
-  }
-  directionsService.route(request, async (result, status) => {
-    if (status === 'OK') {
-      directionsRenderer.setDirections(result)
-      const poly = result.routes?.[0]?.overview_polyline
-      const encoded = typeof poly === 'string' ? poly : poly?.points
-      if (!encoded) return console.error('No encoded polyline found.')
-
-      const pathArray = google.maps.geometry.encoding.decodePath(encoded)
-      let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity
-      pathArray.forEach(pt => {
-        const lat = pt.lat()
-        const lng = pt.lng()
-        if (lat < minLat) minLat = lat
-        if (lat > maxLat) maxLat = lat
-        if (lng < minLng) minLng = lng
-        if (lng > maxLng) maxLng = lng
-      })
-      const latMargin = (maxLat - minLat) * 0.1
-      const lngMargin = (maxLng - minLng) * 0.1
-      minLat -= latMargin
-      maxLat += latMargin
-      minLng -= lngMargin
-      maxLng += lngMargin
-
-      const stationsSubset = await fetchStationsByBoundingBox(minLat, maxLat, minLng, maxLng)
-      nearbyStations.value = stationsSubset
-      activeStationId.value = null
-      fetchAndCreateMarkers(stationsSubset)
-      
-      reference.value = origin
-      emit('filtered', {
-        stations: stationsSubset,
-        reference: origin
-      })
-    } else {
-      console.error('Error calculating route:', status)
-      alert(`Unable to calculate route: ${status}`)
+  }, async (result, status) => {
+    if (status !== 'OK') {
+      console.error(status)
+      return alert(`Unable to calculate route: ${status}`)
     }
+
+    // draw the route
+    directionsRenderer.setDirections(result)
+
+    // build high-res path from every step
+    const fullPath = []
+    result.routes[0].legs.forEach(leg =>
+      leg.steps.forEach(step =>
+        step.path.forEach(pt => fullPath.push(pt))
+      )
+    )
+
+    const routePolyline = new google.maps.Polyline({
+      path: fullPath,
+      geodesic: true
+    })
+
+    // compute tight bounding box around the path
+    let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity
+    fullPath.forEach(pt => {
+      minLat = Math.min(minLat, pt.lat())
+      maxLat = Math.max(maxLat, pt.lat())
+      minLng = Math.min(minLng, pt.lng())
+      maxLng = Math.max(maxLng, pt.lng())
+    })
+    const boxMargin = 0.01
+
+    const stationsSubset = await fetchStationsByBoundingBox(
+      minLat - boxMargin, maxLat + boxMargin,
+      minLng - boxMargin, maxLng + boxMargin
+    )
+
+    // filter only those actually on (or very near) the polyline
+    const tolerance = 0.01
+    const onRouteStations = stationsSubset.filter(station => {
+      const pos = new google.maps.LatLng(station.lat, station.lng)
+      return google.maps.geometry.poly.isLocationOnEdge(pos, routePolyline, tolerance)
+    })
+
+    // render
+    nearbyStations.value = onRouteStations
+    fetchAndCreateMarkers(onRouteStations)
+
+    hasRoute.value = true
+    emit('filtered', { stations: onRouteStations, reference: origin })
   })
+}
+
+
+//--------------------------------------------
+// OPEN IN GOOGLE MAPS
+//--------------------------------------------
+function openInMaps() {
+  if (!hasRoute.value || !destinationCoord.value) {
+    return alert('Create a route first before exporting.')
+  }
+  const o = reference.value
+  const d = destinationCoord.value
+  const waypoints = nearbyStations.value
+    .map(s => `${s.lat},${s.lng}`)
+    .join('|')
+
+  const url = [
+    'https://www.google.com/maps/dir/?api=1',
+    `origin=${o.lat},${o.lng}`,
+    `destination=${d.lat},${d.lng}`,
+    `travelmode=driving`,
+    waypoints ? `waypoints=${waypoints}` : ''
+  ]
+    .filter(Boolean)
+    .join('&')
+
+  window.open(url, '_blank')
 }
 
 //--------------------------------------------
@@ -461,41 +399,19 @@ function clearRouteInputs() {
   clearDirections()
   nearbyStations.value = []
   activeStationId.value = null
-  if(infoWindow) infoWindow.close()
+  hasRoute.value = false
+  destinationCoord.value = null
+  if (infoWindow) infoWindow.close()
 }
 
-/** 
- * NEW: refreshMap
- *   - Clears route/addresses
- *   - Removes markers
- *   - Resets map to default center & zoom
- */
 function refreshMap() {
-  console.log('Refreshing map...');
-  
-  // Clear inputs and directions:
-  fromAddress.value = '';
-  toAddress.value = '';
-  lookupAddress.value = '';
-  clearDirections();
-
-  // Clear markers:
+  clearRouteInputs()
   markers.value.forEach(m => m.setMap(null))
-  markers.value = [];
-
-  // Reset toggle state if needed:
-  allStationsVisible.value = true;
-
-  // Destroy and reinitialize map:
-  map.value = null;
-  initMap();
-  
-  // Clear the nearby station list data:
-  emit('clearFiltered');
-
-  nearbyStations.value = []
-  activeStationId.value = null
-  if(infoWindow) infoWindow.close()
+  markers.value = []
+  allStationsVisible.value = true
+  map.value = null
+  initMap()
+  emit('clearFiltered')
 }
 
 function clearDirections() {
@@ -503,190 +419,78 @@ function clearDirections() {
 }
 
 //--------------------------------------------
-// AUTOCOMPLETE & MISC
+// AUTOCOMPLETE & UI HELPERS
 //--------------------------------------------
 function toggleTools() {
   toolsExpanded.value = !toolsExpanded.value
   if (toolsExpanded.value) {
     nextTick(() => {
       if (lookupInput.value) initAutocomplete(lookupInput.value, lookupAddress)
-      if (fromInput.value) {
-        const fromAuto = new google.maps.places.Autocomplete(fromInput.value, { types: ['geocode'] })
-        fromAuto.addListener('place_changed', () => {
-          const place = fromAuto.getPlace()
-          if (place && place.formatted_address) fromAddress.value = place.formatted_address
-        })
-      }
-      if (toInput.value) {
-        const toAuto = new google.maps.places.Autocomplete(toInput.value, { types: ['geocode'] })
-        toAuto.addListener('place_changed', () => {
-          const place = toAuto.getPlace()
-          if (place && place.formatted_address) toAddress.value = place.formatted_address
-        })
-      }
+      if (fromInput.value) initPlacesAuto(fromInput.value, fromAddress)
+      if (toInput.value) initPlacesAuto(toInput.value, toAddress)
     })
   }
 }
 
-function setMapType(mapType) {
-  currentMapType.value = mapType
-  if (map.value) {
-    map.value.setMapTypeId(mapType)
-  }
-}
-
-function initAutocomplete(inputEl, modelRef) {
-  const auto = new google.maps.places.Autocomplete(inputEl, { types: ['geocode'] })
+function initPlacesAuto(el, textRef, locRef) {
+  const auto = new google.maps.places.Autocomplete(el, { types: ['geocode'] })
   auto.addListener('place_changed', () => {
     const place = auto.getPlace()
-    if (place && place.geometry && place.geometry.location) {
- 
-      modelRef.value = place.formatted_address || ''
+    if (place && place.geometry?.location) {
+      textRef.value = place.formatted_address
+      // pull out the exact lat/lng
+      locRef.value = {
+        lat: place.geometry.location.lat(),
+        lng: place.geometry.location.lng()
+      }
     }
   })
 }
 
-// Basic geocode function
+
+function setMapType(mapType) {
+  currentMapType.value = mapType
+  if (map.value) map.value.setMapTypeId(mapType)
+}
+
+function initAutocomplete(inputEl, modelRef) {
+  initPlacesAuto(inputEl, modelRef)
+}
+
+//--------------------------------------------
+// GEOCODE
+//--------------------------------------------
 async function geocodeAddress(address) {
-  const apiKey = 'AIzaSyDYpNJXRFRuQq5IV8LQZi8E90r1gIaiORI'
+  const apiKey = 'AIzaSyDYpNJXRFRuQjIV8LQZi8E90rIaiORI'
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`
   try {
     const resp = await fetch(url)
-    if (!resp.ok) return null
     const data = await resp.json()
-    if (data.status !== 'OK' || !data.results?.length) return null
+    if (data.status !== 'OK' || !data.results.length) return null
     return data.results[0].geometry.location
-  } catch (err) {
-    console.error(err)
+  } catch (e) {
+    console.error(e)
     return null
-  }
-}
-
-// -------------------------------------
-// NEW: Toggle All Stations Functionality
-// -------------------------------------
-async function toggleAllStations() {
-  clearRouteInputs();
-  emit('clearFiltered');
-  // Destroy and reinitialize map:
-  map.value = null;
-    initMap();
-  // Toggle the state
-  allStationsVisible.value = !allStationsVisible.value
-  if (allStationsVisible.value) {
-    // When toggled on, fetch all stations and create markers.
-    const allStations = await fetchAllStations()
-    fetchAndCreateMarkers(allStations)
-  } else {
-    // When toggled off, remove the markers.
-    markers.value.forEach(m => m.setMap(null))
-    markers.value = []
   }
 }
 </script>
 
 <style scoped>
-.station-map-container {
-  position: relative;
-  width: 100%;
-  height: 600px;
-}
-.map {
-  width: 100%;
-  height: 100%;
-}
-.map-layer-control {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  display: flex;
-  border: 1px solid #ccc;
-  background: #fff;
-  font-family: Arial, sans-serif;
-  font-size: 0.9rem;
-  z-index: 999;
-}
-.layer-button {
-  padding: 8px 12px;
-  color: #333;
-  cursor: pointer;
-  border-right: 1px solid #ccc;
-  user-select: none;
-  display: flex;
-  align-items: center;
-}
-.layer-button:last-child {
-  border-right: none;
-}
-.layer-button:hover {
-  background-color: #b11818;
-  color: #fff;
-}
-.layer-button.active {
-  background-color: #b11818;
-  color: #fff;
-}
-.map-overlay {
-  position: absolute;
-  top: 50px;
-  left: 0;
-  right: 0;
-  height: 50px;
-  background: rgba(255, 255, 255, 0.95);
-  display: flex;
-  align-items: center;
-  padding: 0 10px;
-  z-index: 998;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-}
-.controls-wrapper {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  flex: 1;
-}
-.map-overlay .control-group {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.map-overlay .control-group input {
-  padding: 4px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 0.8rem;
-}
-.map-overlay .control-group button {
-  padding: 4px 8px;
-  border: none;
-  background-color: #b11818;
-  color: #fff;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  cursor: pointer;
-}
-.map-overlay .control-group button:hover {
-  background-color: #a00;
-}
-.collapse-button,
-.expand-button {
-  background-color: #b11818;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  padding: 6px 10px;
-  cursor: pointer;
-  font-size: 0.8rem;
-}
-.collapse-button:hover,
-.expand-button:hover {
-  background-color: #a00;
-}
-.expand-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 999;
-}
-
+/* (your existing styles unchanged) */
+.station-map-container { position: relative; width: 100%; height: 600px; }
+.map { width: 100%; height: 100%; }
+.map-layer-control { position: absolute; top: 10px; left: 10px; display: flex; border: 1px solid #ccc; background: #fff; font-family: Arial, sans-serif; font-size: 0.9rem; z-index: 999; }
+.layer-button { padding: 8px 12px; color: #333; cursor: pointer; border-right: 1px solid #ccc; user-select: none; display: flex; align-items: center; }
+.layer-button:last-child { border-right: none; }
+.layer-button:hover { background-color: #b11818; color: #fff; }
+.layer-button.active { background-color: #b11818; color: #fff; }
+.map-overlay { position: absolute; top: 50px; left: 0; right: 0; height: 50px; background: rgba(255, 255, 255, 0.95); display: flex; align-items: center; padding: 0 10px; z-index: 998; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); }
+.controls-wrapper { display: flex; gap: 10px; overflow-x: auto; flex: 1; }
+.map-overlay .control-group { display: flex; align-items: center; gap: 5px; }
+.map-overlay .control-group input { padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.8rem; }
+.map-overlay .control-group button { padding: 4px 8px; border: none; background-color: #b11818; color: #fff; border-radius: 4px; font-size: 0.8rem; cursor: pointer; }
+.map-overlay .control-group button:hover { background-color: #a00; }
+.collapse-button, .expand-button { background-color: #b11818; color: #fff; border: none; border-radius: 4px; padding: 6px 10px; cursor: pointer; font-size: 0.8rem; }
+.collapse-button:hover, .expand-button:hover { background-color: #a00; }
+.expand-button { position: absolute; top: 10px; right: 10px; z-index: 999; }
 </style>

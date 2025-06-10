@@ -58,7 +58,7 @@ onMounted(async () => {
   try {
     await loadUser()  // Load the user session
     if (!user.value) {
-      router.push({ name: 'signin' })  // Redirect to sign-in if no user
+      router.push({ name: '/' })  // Redirect to homeview if no user
     }
   } catch (error) {
     console.error('Error loading user session:', error)

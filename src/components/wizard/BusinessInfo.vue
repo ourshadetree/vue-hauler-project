@@ -6,7 +6,7 @@
       <label for="company_name">Company Name</label>
       <input
         id="company_name"
-        v-model="local.company_name"
+        v-model="props.profile.company_name"
         type="text"
         placeholder="Enter your company name"
       />
@@ -16,7 +16,7 @@
       <label for="ein_number">EIN Number</label>
       <input
         id="ein_number"
-        v-model="local.ein_number"
+        v-model="props.profile.ein_number"
         type="text"
         placeholder="Enter your EIN"
       />
@@ -25,23 +25,27 @@
 </template>
 
 <script setup>
-import { reactive, watch } from 'vue'
+import { watch } from 'vue'
 
-const props = defineProps({ profile: Object })
-const emit  = defineEmits(['update:profile','valid'])
-
-const local = reactive({
-  company_name: props.profile.company_name || '',
-  ein_number:   props.profile.ein_number   || ''
+const props = defineProps({
+  profile: {
+    type: Object,
+    required: true
+  }
 })
+const emit = defineEmits(['valid'])
 
-// sync back & validate
-watch(local, () => {
-  emit('update:profile', { ...props.profile, ...local })
-  const valid = Object.values(local)
-    .every(v => String(v||'').trim().length > 0)
-  emit('valid', valid)
-}, { deep: true, immediate: true })
+// Whenever either field changes, validate and emit “valid”
+watch(
+  () => [props.profile.company_name, props.profile.ein_number],
+  ([company_name, ein_number]) => {
+    const valid =
+      String(company_name || '').trim().length > 0 &&
+      String(ein_number   || '').trim().length > 0
+    emit('valid', valid)
+  },
+  { immediate: true }
+)
 </script>
 
 <style scoped>
@@ -51,7 +55,7 @@ watch(local, () => {
   margin: 2rem auto;
   padding: 2rem;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 .step-title {
   font-size: 1.75rem;
