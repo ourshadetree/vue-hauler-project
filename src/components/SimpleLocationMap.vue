@@ -403,7 +403,7 @@ async function calculateRoute() {
       const poly = new google.maps.Polyline({ path: fullPath, geodesic: true })
       const onRoute = candidates.filter(st => {
         const pos = new google.maps.LatLng(st.lat, st.lng)
-        return google.maps.geometry.poly.isLocationOnEdge(pos, poly, 0.0005)
+        return google.maps.geometry.poly.isLocationOnEdge(pos, poly, 0.02)
       })
 
       // render & finalize
