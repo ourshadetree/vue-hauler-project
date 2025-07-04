@@ -3,31 +3,61 @@
       <h3 class="step-title">Your Profile</h3>
   
       <dl class="summary-list">
-        <div
-          class="summary-item"
-          v-for="(label, key) in fields"
-          :key="key"
-          v-if="profile[key] !== undefined && profile[key] !== null && profile[key] !== ''"
-        >
-          <dt>{{ label }}</dt>
-          <dd>{{ profile[key] }}</dd>
-        </div>
+        <template v-for="(label, fieldKey) in fields">
+          <div
+            class="summary-item"
+            v-if="profile[fieldKey] !== undefined && profile[fieldKey] !== null && profile[fieldKey] !== ''"
+            :key="fieldKey"
+          >
+            <dt>{{ label }}</dt>
+            <!-- if not editing, show read-only; else allow editing -->
+            <dd v-if="!editing">{{ profile[fieldKey] }}</dd>
+            <dd v-else>
+              <input
+                class="edit-input"
+                v-model="profile[fieldKey]"
+                :disabled="false"
+              />
+            </dd>
+          </div>
+        </template>
       </dl>
+
   
       <div class="action-bar">
-        <button class="primary-btn" @click="$emit('edit')">Edit Info</button>
+          <button
+            v-if="!editing"
+            class="primary-btn"
+            @click="$emit('edit')"
+          >
+            Edit Info
+          </button>
+
+          <template v-else>
+            <button
+              class="primary-btn"
+              @click="$emit('save')"
+            >
+              Save
+            </button>
+            <button
+              class="secondary-btn"
+              @click="$emit('cancel')"
+            >
+              Cancel
+            </button>
+          </template>
       </div>
     </div>
   </template>
   
   <script setup>
-  const props = defineProps({
-    profile: {
-      type: Object,
-      required: true
-    }
-  })
-  const emit = defineEmits(['edit'])
+  // bring in the new “editing” mode:
+    const props = defineProps({
+      profile:  { type: Object, required: true },
+      editing:  { type: Boolean, default: false }
+    })
+    const emit = defineEmits(['edit','save','cancel'])
   
   // map your profile keys to human‑friendly labels
   const fields = {
@@ -101,5 +131,25 @@
   .primary-btn:hover {
     background: #092038;
   }
+
+  .edit-input {
+  width: 100%;
+  padding: 0.25rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+/* and maybe style your secondary (Cancel) button: */
+.secondary-btn {
+  margin-left: 0.5rem;
+  background: #ccc;
+  color: #333;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.secondary-btn:hover {
+  background: #bbb;
+}
   </style>
   

@@ -13,6 +13,7 @@ import FactoringView  from '@/views/FactoringView.vue'
 import ContactView    from '@/views/ContactView.vue'
 import SignInView     from '@/views/SignInView.vue'
 import SignUpView     from '@/views/SignUpView.vue'
+import InviteView     from '@/views/InviteView.vue'
 
 const base = '/vue-hauler-project/'
 
@@ -22,6 +23,7 @@ const routes = [
   { path: '/members',    name: 'members',     component: MembersView },
   { path: '/fuelTools',  name: 'fuelTools',   component: FuelToolsView },
   { path: '/loadBoard',  name: 'loadBoard',   component: LoadBoardView },
+  { path: '/invite/:inviteId', name: 'invite', component: InviteView, props: true},
 
   // Public auth pages
   { path: '/signin',     name: 'signin',      component: SignInView },

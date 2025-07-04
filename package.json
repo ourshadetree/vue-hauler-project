@@ -13,6 +13,7 @@
     "@googlemaps/markerclusterer": "^2.5.3",
     "@supabase/supabase-js": "^2.49.1",
     "core-js": "^3.8.3",
+    "lucide-vue-next": "^0.525.0",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",
     "vuex": "^4.0.0"
